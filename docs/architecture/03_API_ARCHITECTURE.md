@@ -1,0 +1,279 @@
+# API Architecture & Endpoint Specification
+
+This document details the interface layer of the **Market Surface Projection Engine (MSPE)**. It outlines the FastAPI REST API route definitions, WebSocket messaging protocols, request/response models, and systematic error codes.
+
+---
+
+## 1. REST API Endpoint Specification
+
+All endpoints are versioned and follow a prefix of `/api/v1`.
+
+### 1.1 Assets & Option Chains
+
+#### `GET /api/v1/assets`
+Lists all tracked spot assets and indexes.
+*   **Response (200 OK)**:
+    ```json
+    [
+      {
+        "id": "e674b882-cf96-419b-a3d8-5b48dcfae05d",
+        "ticker": "SPX",
+        "name": "S&P 500 Index",
+        "asset_class": "INDEX",
+        "is_active": true
+      }
+    ]
+    ```
+
+#### `GET /api/v1/assets/{ticker}/option-chain`
+Retrieves the complete active options chain including bids, asks, and implied volatilities for a specific asset.
+*   **Query Parameters**:
+    *   `min_strike` (optional, float)
+    *   `max_strike` (optional, float)
+    *   `expiration_date` (optional, date string `YYYY-MM-DD`)
+*   **Response (200 OK)**:
+    ```json
+    {
+      "underlying_ticker": "SPX",
+      "underlying_price": 5050.25,
+      "timestamp": "2026-06-01T12:00:00Z",
+      "expirations": ["2026-06-19T16:00:00Z", "2026-07-17T16:00:00Z"],
+      "contracts": [
+        {
+          "instrument_id": "8c5e9fb8-5d28-4e31-8f55-73898eb2a5fa",
+          "symbol": "SPXW260619C05000000",
+          "strike": 5000.0,
+          "option_type": "C",
+          "expiration_date": "2026-06-19T16:00:00Z",
+          "bid": 65.50,
+          "ask": 67.20,
+          "last": 66.00,
+          "volume": 420.0,
+          "open_interest": 1540.0,
+          "implied_volatility": 0.1452
+        }
+      ]
+    }
+    ```
+
+---
+
+### 1.2 Volatility Surface Models
+
+#### `GET /api/v1/surfaces/{ticker}`
+Retrieves the most recent calibrated mathematical parameters and dense visualization grid of the asset's volatility surface.
+*   **Query Parameters**:
+    *   `model_type` (optional, string: `'SVI'`, `'SABR'`, `'HESTON'`, `'DUPIRE_LOCAL'`)
+*   **Response (200 OK)**:
+    ```json
+    {
+      "surface_id": "45d1d618-971c-4e21-971b-f5cb7234b173",
+      "asset_ticker": "SPX",
+      "timestamp": "2026-06-01T12:15:00Z",
+      "model_type": "SVI",
+      "calibration_error": 0.00142,
+      "parameters": {
+        "a": 0.04,
+        "b": 0.12,
+        "rho": -0.45,
+        "m": 0.05,
+        "sigma": 0.22
+      },
+      "grid": [
+        {
+          "strike": 5000.0,
+          "tenor": 0.25,
+          "implied_volatility": 0.1482,
+          "local_volatility": 0.1652,
+          "delta": -0.52
+        }
+      ]
+    }
+    ```
+
+#### `POST /api/v1/surfaces/{ticker}/calibrate`
+Forces an immediate re-calibration of a volatility model using the latest market options prices.
+*   **Request Body**:
+    ```json
+    {
+      "model_type": "SVI",
+      "use_cache": false
+    }
+    ```
+*   **Response (202 Accepted)**:
+    ```json
+    {
+      "task_id": "fitting_task_12345",
+      "status": "PENDING",
+      "message": "Surface calibration initiated in Celery worker"
+    }
+    ```
+
+---
+
+### 1.3 Monte Carlo Surface Projections
+
+#### `POST /api/v1/projections/{ticker}/run`
+Initiates a probabilistic Monte Carlo surface projection run using underlying drift models.
+*   **Request Body**:
+    ```json
+    {
+      "model_type": "HESTON",
+      "num_paths": 100000,
+      "steps": 252,
+      "drift_forecast_method": "PYTORCH_LSTM"
+    }
+    ```
+*   **Response (202 Accepted)**:
+    ```json
+    {
+      "run_id": "b3e3e219-275c-4e21-971b-f5cb7234b173",
+      "status": "RUNNING",
+      "message": "Monte Carlo simulation running"
+    }
+    ```
+
+#### `GET /api/v1/projections/runs/{run_id}`
+Retrieves the status and final probabilistic projections for a finished run.
+*   **Response (200 OK)**:
+    ```json
+    {
+      "run_id": "b3e3e219-275c-4e21-971b-f5cb7234b173",
+      "status": "COMPLETED",
+      "timestamp": "2026-06-01T12:16:00Z",
+      "projections": [
+        {
+          "projection_date": "2026-06-05T16:00:00Z",
+          "strike": 5000.0,
+          "tenor": 0.25,
+          "vol_p10": 0.1250,
+          "vol_p50": 0.1420,
+          "vol_p90": 0.1690,
+          "density": 0.354
+        }
+      ]
+    }
+    ```
+
+---
+
+### 1.4 Risk Engine & Systematic Trading Signals
+
+#### `GET /api/v1/risk/portfolio`
+Fetches aggregate portfolio-level Greeks and Value at Risk projections.
+*   **Response (200 OK)**:
+    ```json
+    {
+      "portfolio_id": "default",
+      "timestamp": "2026-06-01T12:16:00Z",
+      "greeks": {
+        "delta": 1540.25,
+        "gamma": -45.10,
+        "vega": 25000.00,
+        "theta": -8500.00,
+        "vanna": 12.50,
+        "volga": 450.20
+      },
+      "risk_metrics": {
+        "value_at_risk_95": 145000.00,
+        "cvar_95": 210000.00
+      }
+    }
+    ```
+
+#### `GET /api/v1/signals`
+Lists active systematic option opportunities generated by the signal engine.
+*   **Query Parameters**:
+    *   `min_confidence` (optional, float)
+*   **Response (200 OK)**:
+    ```json
+    [
+      {
+        "signal_id": "99f8e219-275c-4e21-971b-f5cb7234b173",
+        "asset_ticker": "SPX",
+        "strategy_name": "VOL_ARBITRAGE",
+        "signal_type": "BUY_SKEW",
+        "confidence_score": 0.8950,
+        "entry_strike": 4950.0,
+        "entry_tenor": 0.0833,
+        "signal_details": {
+          "discrepancy": "Market skew is undervalued by 2.1 standard deviations",
+          "recommended_hedge_ratio": -0.42
+        },
+        "created_at": "2026-06-01T12:15:30Z"
+      }
+    ]
+    ```
+
+---
+
+## 2. WebSocket Real-Time Streaming Specification
+
+WebSockets provide low-latency, real-time push streams of dynamic surface fits and computational progress updates.
+
+*   **URL**: `ws://<domain>/ws/v1/surfaces/live`
+
+### 2.1 Client Subscriptions
+The client must send a subscription JSON payload immediately upon connection:
+
+```json
+{
+  "action": "subscribe",
+  "ticker": "SPX",
+  "channels": ["surface_snapshot", "projections_progress", "signals"]
+}
+```
+
+### 2.2 Server Streams
+
+#### Channel: `surface_snapshot`
+Fires whenever the real-time ingestion service triggers a new calibration fit (every 10–30 seconds under active markets).
+```json
+{
+  "event": "surface_snapshot",
+  "ticker": "SPX",
+  "timestamp": "2026-06-01T12:16:30Z",
+  "rmse": 0.00085,
+  "fit_params": {
+    "a": 0.0401,
+    "b": 0.1198,
+    "rho": -0.4520,
+    "m": 0.0505,
+    "sigma": 0.2201
+  }
+}
+```
+
+#### Channel: `projections_progress`
+Streams computation state changes for long-running Monte Carlo simulators.
+```json
+{
+  "event": "projection_progress",
+  "run_id": "b3e3e219-275c-4e21-971b-f5cb7234b173",
+  "percentage_complete": 45.0,
+  "status": "RUNNING"
+}
+```
+
+---
+
+## 3. Systematic Error Standard
+
+The API strictly implements the RFC 7807 Problem Details schema for all error boundaries:
+
+```json
+{
+  "type": "https://api.mspe.trading/errors/calibration-failure",
+  "title": "Model Calibration Failure",
+  "status": 422,
+  "detail": "SVI parameter optimization failed to converge due to high calendar arbitrage in market prices.",
+  "instance": "/api/v1/surfaces/SPX/calibrate",
+  "error_code": "VOL_FIT_CONVERGENCE_ERROR",
+  "timestamp": "2026-06-01T12:16:40Z"
+}
+```
+Vol-surface specific Error Codes:
+*   `VOL_FIT_CONVERGENCE_ERROR`: Parameter optimization loop failed to reach tolerances.
+*   `ARBITRAGE_VIOLATION_ERROR`: Calibrated parameters contain unacceptable static arbitrage bounds.
+*   `SIMULATION_MAX_PATH_EXCEEDED`: Too many paths requested for current hardware constraints.
+*   `ASSET_NOT_TRACKED`: Underlyings not registered in system metadata.
