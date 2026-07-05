@@ -15,6 +15,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from backend.app.core.config import settings
 from backend.app.core.logging import logger
 from backend.app.api.router import api_router
+from backend.app.api.user_api import router as user_api_router
 from backend.app.db.session import async_session_maker
 from backend.app.services.ingestion import IngestionService
 
@@ -92,6 +93,7 @@ app.add_middleware(
 
 # Mount API Routers
 app.include_router(api_router, prefix="/api/v1")
+app.include_router(user_api_router, prefix="/api")
 
 @app.get("/")
 def read_root():

@@ -154,24 +154,24 @@ export default function BacktestResults() {
             {/* Profit Factor */}
             <div className="glass-panel rounded-xl p-4 border border-[#1F2942] relative overflow-hidden">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Profit Factor</span>
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Gains / Losses Ratio</span>
                 <Activity className="w-4 h-4 text-cyan-400" />
               </div>
               <div className="mt-3">
                 <span className="text-2xl font-black font-mono tracking-tight text-slate-100">
-                  {data.profit_factor}
+                  {data.profit_factor}x
                 </span>
                 <div className="text-xs text-slate-400 font-mono mt-1">
-                  Gross profit / Gross loss ratio
+                  Ratio of gross gains vs gross losses
                 </div>
               </div>
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-teal-500" />
             </div>
 
-            {/* Max Drawdown */}
+            {/* Worst Historical Drop */}
             <div className="glass-panel rounded-xl p-4 border border-[#1F2942] relative overflow-hidden">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Max Drawdown</span>
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Worst Historical Drop</span>
                 <AlertTriangle className="w-4 h-4 text-amber-500" />
               </div>
               <div className="mt-3">
@@ -179,7 +179,7 @@ export default function BacktestResults() {
                   -{data.max_drawdown_pct}%
                 </span>
                 <div className="text-xs text-slate-400 font-mono mt-1">
-                  Peak-to-trough risk profile
+                  Peak-to-trough drop limit
                 </div>
               </div>
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-amber-500" />
