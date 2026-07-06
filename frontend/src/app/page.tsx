@@ -6,6 +6,7 @@ import MarketOverview from '../components/MarketOverview';
 import AssetDashboard from '../components/AssetDashboard';
 import PortfolioRisk from '../components/PortfolioRisk';
 import BacktestResults from '../components/BacktestResults';
+import MethodologyPage from '../components/MethodologyPage';
 import { Calendar, Sun, Moon } from 'lucide-react';
 import { copy } from '../content/copy';
 
@@ -47,6 +48,8 @@ export default function DashboardPage() {
         return <BacktestResults theme={theme} />;
       case 'RISK':
         return <PortfolioRisk theme={theme} />;
+      case 'METHODOLOGY':
+        return <MethodologyPage theme={theme} />;
       default:
         return <MarketOverview theme={theme} />;
     }

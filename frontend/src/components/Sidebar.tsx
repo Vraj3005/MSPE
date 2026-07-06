@@ -6,7 +6,8 @@ import {
   BarChart2, 
   ShieldAlert, 
   Activity,
-  History
+  History,
+  Info
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,6 +22,7 @@ export default function Sidebar({ activeTab, setActiveTab, theme = 'light' }: Si
     { id: 'ASSET', name: 'Technical Detail', icon: BarChart2 },
     { id: 'BACKTEST', name: 'Strategy Backtester', icon: History },
     { id: 'RISK', name: 'Portfolio Risks', icon: ShieldAlert },
+    { id: 'METHODOLOGY', name: 'How It Works', icon: Info },
   ];
 
   return (
