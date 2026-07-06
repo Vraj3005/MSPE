@@ -4,12 +4,13 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { api, MarketBar, MarketFeature, SurfaceProjectionResponse, ProjectedSurfaceBase } from '../lib/api';
 import { BarChart, Activity, Shield, RefreshCw, Layers, Zap, Info, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
+import { copy } from '../content/copy';
 
 // Dynamic Plotly Import to prevent SSR errors in Next.js
 const Plot = dynamic(() => import('react-plotly.js'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[400px] flex items-center justify-center bg-[#151D30]/30 rounded-xl border border-[#1F2942] animate-pulse">
+    <div className="w-full h-[400px] flex items-center justify-center bg-slate-100/50 rounded-xl border border-slate-200/50 animate-pulse">
       <div className="text-slate-400 font-mono text-xs flex items-center gap-2">
         <RefreshCw className="w-4 h-4 animate-spin" /> Preparing Interactive Charts...
       </div>
@@ -17,7 +18,11 @@ const Plot = dynamic(() => import('react-plotly.js'), {
   )
 });
 
-export default function AssetDashboard() {
+interface AssetDashboardProps {
+  theme?: 'light' | 'dark';
+}
+
+export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps) {
   const [selectedTicker, setSelectedTicker] = useState<string>('BTCUSDT');
   const [resolution, setResolution] = useState<string>('1d');
   const [bars, setBars] = useState<MarketBar[]>([]);
@@ -290,26 +295,38 @@ export default function AssetDashboard() {
         type: 'surface',
         colorscale: 'Viridis',
         opacity: 0.85,
-        name: 'Probability Density Mesh',
+        name: 'Thousands of simulated future paths',
         showscale: false
       }
     ];
   };
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 min-h-screen p-6 rounded-2xl border transition-all duration-300 ${
+      theme === 'light' 
+        ? 'bg-slate-50 text-slate-800 border-slate-200' 
+        : 'bg-[#151D30]/20 text-slate-100 border-[#1F2942]/60'
+    }`}>
       {/* Selector Header Segment */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold tracking-wider text-slate-100 uppercase">Technical Detail & Charting</h2>
-          <p className="text-xs text-slate-400 font-mono mt-1">Interactive candlestick charts, indicators overlays, and volatility analytics</p>
+          <h2 className={`text-xl font-bold tracking-wider uppercase transition-colors duration-300 ${
+            theme === 'light' ? 'text-slate-900' : 'text-slate-100'
+          }`}>Technical Detail & Charting</h2>
+          <p className={`text-xs mt-1 transition-colors duration-300 ${
+            theme === 'light' ? 'text-slate-500' : 'text-slate-400'
+          }`}>Interactive price charts, trend moving averages, and volatility gauges</p>
         </div>
         
         <div className="flex items-center gap-3">
           <select
             value={selectedTicker}
             onChange={(e) => setSelectedTicker(e.target.value)}
-            className="bg-[#151D30] border border-[#1F2942] rounded-lg px-4 py-2 text-xs font-mono font-bold text-slate-200 outline-none focus:border-cyan-500/50"
+            className={`rounded-lg px-4 py-2 text-xs font-mono font-bold outline-none border transition-all duration-300 ${
+              theme === 'light' 
+                ? 'bg-white border-slate-200 text-slate-850 focus:border-indigo-500' 
+                : 'bg-[#151D30] border-[#1F2942] text-slate-200 focus:border-cyan-500/50'
+            }`}
           >
             {assetsList.map(ticker => (
               <option key={ticker} value={ticker}>{ticker}</option>
@@ -319,10 +336,12 @@ export default function AssetDashboard() {
           <button
             onClick={handleComputeFeatures}
             disabled={computing}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider uppercase border border-cyan-500/30 transition-all duration-300 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider uppercase border transition-all duration-300 ${
               computing 
-                ? 'bg-cyan-500/5 text-cyan-500 cursor-not-allowed' 
-                : 'bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 active:scale-95'
+                ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed dark:bg-cyan-500/5 dark:text-cyan-500 dark:border-cyan-500/30' 
+                : theme === 'light'
+                  ? 'bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50 active:scale-95 shadow-sm'
+                  : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/20 active:scale-95'
             }`}
           >
             <RefreshCw className={`w-3.5 h-3.5 ${computing ? 'animate-spin' : ''}`} />
@@ -332,7 +351,7 @@ export default function AssetDashboard() {
       </div>
 
       {loading ? (
-        <div className="w-full h-[400px] flex items-center justify-center bg-[#151D30]/20 rounded-xl border border-[#1F2942] animate-pulse">
+        <div className="w-full h-[400px] flex items-center justify-center bg-slate-100/50 rounded-xl border border-slate-200/50 animate-pulse">
           <div className="text-slate-400 font-mono text-xs flex items-center gap-2">
             <RefreshCw className="w-4 h-4 animate-spin" /> Querying Price History...
           </div>
@@ -340,7 +359,9 @@ export default function AssetDashboard() {
       ) : (
         <div className="grid grid-cols-1 gap-6">
           {/* Main Candlestick Chart with overlays */}
-          <div className="glass-panel rounded-xl p-4 border border-[#1F2942]">
+          <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+            theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
+          }`}>
             <Plot
               data={[
                 {
@@ -351,7 +372,7 @@ export default function AssetDashboard() {
                   close: closes,
                   type: 'candlestick',
                   name: selectedTicker,
-                  increasing: { line: { color: '#10B981' } },
+                  increasing: { line: { color: '#0EA5E9' } },
                   decreasing: { line: { color: '#F43F5E' } }
                 },
                 {
@@ -360,7 +381,7 @@ export default function AssetDashboard() {
                   type: 'scatter',
                   mode: 'lines',
                   name: 'SMA (20-Day Simple Average)',
-                  line: { color: '#06B6D4', width: 1.5 }
+                  line: { color: '#4F46E5', width: 1.5 }
                 },
                 {
                   x: timestamps,
@@ -376,7 +397,7 @@ export default function AssetDashboard() {
                   type: 'scatter',
                   mode: 'lines',
                   name: 'Support Line (30-Day Floor)',
-                  line: { color: '#84CC16', width: 1, dash: 'dot' }
+                  line: { color: '#10B981', width: 1, dash: 'dot' }
                 },
                 {
                   x: timestamps,
@@ -388,25 +409,32 @@ export default function AssetDashboard() {
                 }
               ]}
               layout={{
-                title: { text: `${selectedTicker} - Daily Price & Support/Resistance Overlays`, font: { color: '#F1F5F9', family: 'Inter', size: 13 } },
+                title: { 
+                  text: `${selectedTicker} - Historical Prices & Key Levels`, 
+                  font: { color: theme === 'light' ? '#0F172A' : '#F1F5F9', family: 'Inter', size: 13 } 
+                },
                 dragmode: 'zoom',
                 showlegend: true,
                 xaxis: {
                   rangeslider: { visible: false },
-                  gridcolor: '#1F2942/30',
-                  tickfont: { color: '#94A3B8', size: 10 },
-                  linecolor: '#1F2942'
+                  gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.3)',
+                  tickfont: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 10 },
+                  linecolor: theme === 'light' ? '#CBD5E1' : '#1F2942'
                 },
                 yaxis: {
-                  gridcolor: '#1F2942/30',
-                  tickfont: { color: '#94A3B8', size: 10 },
-                  linecolor: '#1F2942',
+                  gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.3)',
+                  tickfont: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 10 },
+                  linecolor: theme === 'light' ? '#CBD5E1' : '#1F2942',
                   autorange: true
                 },
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
                 margin: { l: 50, r: 30, t: 40, b: 40 },
-                legend: { font: { color: '#E2E8F0', size: 9 }, orientation: 'h', y: -0.15 }
+                legend: { 
+                  font: { color: theme === 'light' ? '#475569' : '#E2E8F0', size: 9 }, 
+                  orientation: 'h', 
+                  y: -0.15 
+                }
               }}
               config={{ responsive: true, displayModeBar: false }}
               className="w-full h-[380px]"
@@ -416,13 +444,17 @@ export default function AssetDashboard() {
           {/* Subplots Indicators Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* 1. RSI Indicator */}
-            <div className="glass-panel rounded-xl p-4 border border-[#1F2942]">
-              <h4 className="text-xs font-bold font-mono text-slate-400 mb-2 uppercase flex items-center gap-1.5 justify-between">
+            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+              theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
+            }`}>
+              <h4 className={`text-xs font-bold font-mono mb-2 uppercase flex items-center gap-1.5 justify-between ${
+                theme === 'light' ? 'text-slate-700' : 'text-slate-400'
+              }`}>
                 <span className="flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-cyan-400" /> RSI (14) Momentum
+                  <Activity className="w-3.5 h-3.5 text-indigo-500" /> RSI - Speed of Price Changes
                 </span>
                 <span title="Momentum score between 0 and 100. Values above 70 indicate overbought conditions, below 30 indicate oversold conditions.">
-                  <HelpCircle className="w-3.5 h-3.5 text-slate-500 hover:text-slate-300 cursor-help" />
+                  <HelpCircle className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 cursor-help" />
                 </span>
               </h4>
               <Plot
@@ -432,7 +464,7 @@ export default function AssetDashboard() {
                     y: rsi,
                     type: 'scatter',
                     mode: 'lines',
-                    line: { color: '#38BDF8', width: 1.5 }
+                    line: { color: '#4F46E5', width: 1.5 }
                   },
                   {
                     x: [timestamps[0], timestamps[timestamps.length - 1]],
@@ -453,8 +485,16 @@ export default function AssetDashboard() {
                 ]}
                 layout={{
                   showlegend: false,
-                  xaxis: { gridcolor: '#1F2942/20', tickfont: { color: '#64748B', size: 9 }, linecolor: '#1F2942' },
-                  yaxis: { gridcolor: '#1F2942/20', tickfont: { color: '#64748B', size: 9 }, range: [10, 90] },
+                  xaxis: { 
+                    gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.2)', 
+                    tickfont: { color: theme === 'light' ? '#475569' : '#64748B', size: 9 }, 
+                    linecolor: theme === 'light' ? '#CBD5E1' : '#1F2942' 
+                  },
+                  yaxis: { 
+                    gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.2)', 
+                    tickfont: { color: theme === 'light' ? '#475569' : '#64748B', size: 9 }, 
+                    range: [10, 90] 
+                  },
                   paper_bgcolor: 'rgba(0,0,0,0)',
                   plot_bgcolor: 'rgba(0,0,0,0)',
                   margin: { l: 30, r: 10, t: 10, b: 30 }
@@ -465,13 +505,17 @@ export default function AssetDashboard() {
             </div>
 
             {/* 2. MACD Histogram */}
-            <div className="glass-panel rounded-xl p-4 border border-[#1F2942]">
-              <h4 className="text-xs font-bold font-mono text-slate-400 mb-2 uppercase flex items-center gap-1.5 justify-between">
+            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+              theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
+            }`}>
+              <h4 className={`text-xs font-bold font-mono mb-2 uppercase flex items-center gap-1.5 justify-between ${
+                theme === 'light' ? 'text-slate-700' : 'text-slate-400'
+              }`}>
                 <span className="flex items-center gap-1.5">
-                  <BarChart className="w-3.5 h-3.5 text-purple-400" /> MACD Trend Velocity
+                  <BarChart className="w-3.5 h-3.5 text-indigo-500" /> MACD - Strength of Price Trend
                 </span>
                 <span title="Moving Average Convergence Divergence. Shows changes in the strength, direction, and momentum of a price trend.">
-                  <HelpCircle className="w-3.5 h-3.5 text-slate-500 hover:text-slate-300 cursor-help" />
+                  <HelpCircle className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 cursor-help" />
                 </span>
               </h4>
               <Plot
@@ -481,14 +525,21 @@ export default function AssetDashboard() {
                     y: macd,
                     type: 'bar',
                     marker: {
-                      color: macd.map(val => (val && val >= 0) ? '#10B981' : '#F43F5E')
+                      color: macd.map(val => (val && val >= 0) ? '#0D9488' : '#BE123C')
                     }
                   }
                 ]}
                 layout={{
                   showlegend: false,
-                  xaxis: { gridcolor: '#1F2942/20', tickfont: { color: '#64748B', size: 9 }, linecolor: '#1F2942' },
-                  yaxis: { gridcolor: '#1F2942/20', tickfont: { color: '#64748B', size: 9 } },
+                  xaxis: { 
+                    gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.2)', 
+                    tickfont: { color: theme === 'light' ? '#475569' : '#64748B', size: 9 }, 
+                    linecolor: theme === 'light' ? '#CBD5E1' : '#1F2942' 
+                  },
+                  yaxis: { 
+                    gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.2)', 
+                    tickfont: { color: theme === 'light' ? '#475569' : '#64748B', size: 9 } 
+                  },
                   paper_bgcolor: 'rgba(0,0,0,0)',
                   plot_bgcolor: 'rgba(0,0,0,0)',
                   margin: { l: 30, r: 10, t: 10, b: 30 }
@@ -499,13 +550,17 @@ export default function AssetDashboard() {
             </div>
 
             {/* 3. Volatility Indicator */}
-            <div className="glass-panel rounded-xl p-4 border border-[#1F2942]">
-              <h4 className="text-xs font-bold font-mono text-slate-400 mb-2 uppercase flex items-center gap-1.5 justify-between">
+            <div className={`rounded-xl p-4 border transition-colors duration-300 ${
+              theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
+            }`}>
+              <h4 className={`text-xs font-bold font-mono mb-2 uppercase flex items-center gap-1.5 justify-between ${
+                theme === 'light' ? 'text-slate-700' : 'text-slate-400'
+              }`}>
                 <span className="flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-amber-400" /> Daily Volatility (%)
+                  <Shield className="w-3.5 h-3.5 text-indigo-500" /> Volatility - Swing Rate (%)
                 </span>
                 <span title="Parkinson high-low price volatility. Represents the rolling historical range variation.">
-                  <HelpCircle className="w-3.5 h-3.5 text-slate-500 hover:text-slate-300 cursor-help" />
+                  <HelpCircle className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 cursor-help" />
                 </span>
               </h4>
               <Plot
@@ -520,8 +575,15 @@ export default function AssetDashboard() {
                 ]}
                 layout={{
                   showlegend: false,
-                  xaxis: { gridcolor: '#1F2942/20', tickfont: { color: '#64748B', size: 9 }, linecolor: '#1F2942' },
-                  yaxis: { gridcolor: '#1F2942/20', tickfont: { color: '#64748B', size: 9 } },
+                  xaxis: { 
+                    gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.2)', 
+                    tickfont: { color: theme === 'light' ? '#475569' : '#64748B', size: 9 }, 
+                    linecolor: theme === 'light' ? '#CBD5E1' : '#1F2942' 
+                  },
+                  yaxis: { 
+                    gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.2)', 
+                    tickfont: { color: theme === 'light' ? '#475569' : '#64748B', size: 9 } 
+                  },
                   paper_bgcolor: 'rgba(0,0,0,0)',
                   plot_bgcolor: 'rgba(0,0,0,0)',
                   margin: { l: 30, r: 10, t: 10, b: 30 }
@@ -533,15 +595,23 @@ export default function AssetDashboard() {
           </div>
 
           {/* Collapsible 3D Probability Surface Mesh */}
-          <div className="glass-panel rounded-xl border border-[#1F2942] overflow-hidden">
+          <div className={`rounded-xl border overflow-hidden transition-colors duration-300 ${
+            theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942]'
+          }`}>
             <button
               onClick={() => setShow3DMesh(!show3DMesh)}
-              className="w-full px-6 py-4 flex justify-between items-center bg-[#151D30]/20 hover:bg-[#151D30]/40 transition-colors"
+              className={`w-full px-6 py-4 flex justify-between items-center transition-colors ${
+                theme === 'light' 
+                  ? 'bg-slate-100 hover:bg-slate-200/60' 
+                  : 'bg-[#151D30]/20 hover:bg-[#151D30]/40'
+              }`}
             >
               <div className="flex items-center gap-2.5">
-                <Layers className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm font-bold tracking-wider text-slate-100 uppercase font-mono">
-                  Interactive 3D Probability Mesh (Advanced Visual)
+                <Layers className="w-4 h-4 text-indigo-500" />
+                <span className={`text-sm font-bold tracking-wider uppercase font-mono ${
+                  theme === 'light' ? 'text-slate-900' : 'text-slate-100'
+                }`}>
+                  Interactive 3D Price Range Mesh (Advanced View)
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -553,22 +623,30 @@ export default function AssetDashboard() {
             </button>
 
             {show3DMesh && (
-              <div className="p-6 border-t border-[#1F2942] bg-[#0B0F19]/40 space-y-6">
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-[#0B0F19]/60 p-4 rounded-lg border border-[#1F2942]/60">
+              <div className={`p-6 border-t space-y-6 ${
+                theme === 'light' ? 'border-slate-200 bg-slate-50' : 'border-[#1F2942] bg-[#0B0F19]/40'
+              }`}>
+                <div className={`flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 p-4 rounded-lg border ${
+                  theme === 'light' ? 'bg-white border-slate-200' : 'bg-[#0B0F19]/60 border-[#1F2942]/60'
+                }`}>
                   <div className="text-xs text-slate-400 max-w-2xl">
-                    <p className="font-bold text-slate-200">How to Read the 3D Probability Surface:</p>
-                    <p className="mt-1 leading-relaxed">
-                      This mesh projects the probability density (Z-axis, height) across different prices (Y-axis) over the next 7 days (X-axis). 
+                    <p className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-slate-200'}`}>
+                      How to Read the 3D Price Range Mesh:
+                    </p>
+                    <p className={`mt-1 leading-relaxed ${theme === 'light' ? 'text-slate-650' : 'text-slate-400'}`}>
+                      This mesh projects simulated future paths (Z-axis, height) across different prices (Y-axis) over the next 7 days (X-axis). 
                       The peaks represent the most likely price levels predicted by the engine's model over time.
                     </p>
                   </div>
                   <button
                     onClick={handleRunProjection}
                     disabled={simulating}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider uppercase border border-cyan-500/30 transition-all duration-300 whitespace-nowrap ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold tracking-wider uppercase border transition-all duration-300 whitespace-nowrap ${
                       simulating 
-                        ? 'bg-cyan-500/5 text-cyan-500 cursor-not-allowed' 
-                        : 'bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 active:scale-95'
+                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' 
+                        : theme === 'light'
+                          ? 'bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50 active:scale-95 shadow-sm'
+                          : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/20 active:scale-95'
                     }`}
                   >
                     <Zap className={`w-3.5 h-3.5 ${simulating ? 'animate-bounce' : ''}`} />
@@ -583,16 +661,33 @@ export default function AssetDashboard() {
                   </div>
                 )}
 
-                <div className="w-full h-[450px] rounded-lg overflow-hidden border border-[#1F2942]">
+                <div className={`w-full h-[450px] rounded-lg overflow-hidden border ${
+                  theme === 'light' ? 'bg-white border-slate-200' : 'border-[#1F2942]'
+                }`}>
                   <Plot
                     data={construct3DPlotData()}
                     layout={{
-                      title: { text: `3D Probabilistic Density Mesh (Z = Density)`, font: { color: '#F1F5F9', family: 'Inter', size: 12 } },
+                      title: { 
+                        text: `Thousands of simulated future paths (3D Mesh)`, 
+                        font: { color: theme === 'light' ? '#0F172A' : '#F1F5F9', family: 'Inter', size: 12 } 
+                      },
                       autosize: true,
                       scene: {
-                        xaxis: { title: { text: 'Time Step', font: { color: '#94A3B8', size: 9 } }, tickfont: { color: '#64748B' }, gridcolor: '#1F2942/30' },
-                        yaxis: { title: { text: 'Price ($)', font: { color: '#94A3B8', size: 9 } }, tickfont: { color: '#64748B' }, gridcolor: '#1F2942/30' },
-                        zaxis: { title: { text: 'Density', font: { color: '#94A3B8', size: 9 } }, tickfont: { color: '#64748B' }, gridcolor: '#1F2942/30' },
+                        xaxis: { 
+                          title: { text: 'Time Step', font: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 9 } }, 
+                          tickfont: { color: theme === 'light' ? '#475569' : '#64748B' }, 
+                          gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.3)' 
+                        },
+                        yaxis: { 
+                          title: { text: 'Price ($)', font: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 9 } }, 
+                          tickfont: { color: theme === 'light' ? '#475569' : '#64748B' }, 
+                          gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.3)' 
+                        },
+                        zaxis: { 
+                          title: { text: 'Likelihood', font: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 9 } }, 
+                          tickfont: { color: theme === 'light' ? '#475569' : '#64748B' }, 
+                          gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : 'rgba(31,41,66,0.3)' 
+                        },
                         camera: { eye: { x: 1.4, y: 1.4, z: 1.1 } },
                         bgcolor: 'rgba(0,0,0,0)'
                       },
@@ -609,33 +704,43 @@ export default function AssetDashboard() {
           </div>
 
           {/* Simple Methodology Explanation */}
-          <div className="glass-panel rounded-xl p-6 border border-[#1F2942] space-y-4">
-            <h3 className="text-sm font-bold tracking-wider text-slate-100 uppercase border-b border-[#1F2942]/60 pb-3 flex items-center gap-2">
-              <Info className="w-4 h-4 text-cyan-400" />
+          <div className={`rounded-xl p-6 border transition-all duration-300 ${
+            theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
+          }`}>
+            <h3 className={`text-sm font-bold tracking-wider uppercase border-b pb-3 flex items-center gap-2 ${
+              theme === 'light' ? 'border-slate-100 text-slate-900 font-bold' : 'border-[#1F2942]/60 text-slate-100'
+            }`}>
+              <Info className="w-4 h-4 text-indigo-500" />
               Methodology Explained (How the Engine Works)
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-400 leading-relaxed">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs leading-relaxed">
               <div className="space-y-1.5">
-                <h4 className="font-bold text-slate-200 font-mono text-[10px] tracking-wider uppercase">01 // Machine Learning Forecast</h4>
-                <p>
+                <h4 className={`font-bold font-mono text-[10px] tracking-wider uppercase ${
+                  theme === 'light' ? 'text-slate-900 font-bold' : 'text-slate-200'
+                }`}>01 // Machine Learning Trend Model</h4>
+                <p className={theme === 'light' ? 'text-slate-650' : 'text-slate-400'}>
                   We train supervised ML regression models (such as <strong>XGBoost</strong> and <strong>Random Forest</strong>) on historical price action 
-                  and indicator features (RSI, moving averages, daily range volatility). These models forecast the expected return (drift trend) 
-                  and volatility over the forward horizon.
+                  and indicator features (RSI, moving averages, volatility parameters). These models estimate the expected direction (drift trend) 
+                  and variance over the forward horizon.
                 </p>
               </div>
 
               <div className="space-y-1.5">
-                <h4 className="font-bold text-slate-200 font-mono text-[10px] tracking-wider uppercase">02 // Euler Monte Carlo Simulator</h4>
-                <p>
+                <h4 className={`font-bold font-mono text-[10px] tracking-wider uppercase ${
+                  theme === 'light' ? 'text-slate-900 font-bold' : 'text-slate-200'
+                }`}>02 // Thousands of simulated future paths</h4>
+                <p className={theme === 'light' ? 'text-slate-650' : 'text-slate-400'}>
                   Using the ML forecasts as parameters, we run an <strong>Euler-Maruyama discretized simulation</strong> of Geometric Brownian Motion (GBM). 
                   The model generates <strong>10,000 distinct price paths</strong> forward in time, representing different market scenarios based on randomness.
                 </p>
               </div>
 
               <div className="space-y-1.5">
-                <h4 className="font-bold text-slate-200 font-mono text-[10px] tracking-wider uppercase">03 // Probability Boundaries</h4>
-                <p>
+                <h4 className={`font-bold font-mono text-[10px] tracking-wider uppercase ${
+                  theme === 'light' ? 'text-slate-900 font-bold' : 'text-slate-200'
+                }`}>03 // Bear, Base, and Bull Price Scenarios</h4>
+                <p className={theme === 'light' ? 'text-slate-650' : 'text-slate-400'}>
                   Instead of showing thousands of lines, we group these paths into percentiles. The **Bull (P90)** boundary means only 10% of paths went higher. 
                   The **Bear (P10)** boundary means only 10% went lower. The **Base (P50)** shows the median outcome. This provides a clear range of outcomes.
                 </p>

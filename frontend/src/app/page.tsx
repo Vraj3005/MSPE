@@ -7,6 +7,7 @@ import AssetDashboard from '../components/AssetDashboard';
 import PortfolioRisk from '../components/PortfolioRisk';
 import BacktestResults from '../components/BacktestResults';
 import { Calendar, Sun, Moon } from 'lucide-react';
+import { copy } from '../content/copy';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<string>('MARKET');
@@ -41,11 +42,11 @@ export default function DashboardPage() {
       case 'MARKET':
         return <MarketOverview theme={theme} />;
       case 'ASSET':
-        return <AssetDashboard />;
+        return <AssetDashboard theme={theme} />;
       case 'BACKTEST':
-        return <BacktestResults />;
+        return <BacktestResults theme={theme} />;
       case 'RISK':
-        return <PortfolioRisk />;
+        return <PortfolioRisk theme={theme} />;
       default:
         return <MarketOverview theme={theme} />;
     }
@@ -73,7 +74,7 @@ export default function DashboardPage() {
             <h2 className={`text-xs font-bold font-mono tracking-widest uppercase ${
               theme === 'light' ? 'text-slate-700 font-bold' : 'text-slate-400'
             }`}>
-              MSPE SYSTEM PORTAL // MAIN NET
+              {copy.portalHeader}
             </h2>
           </div>
           

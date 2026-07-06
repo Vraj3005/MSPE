@@ -184,7 +184,7 @@ export default function ProjectionSurface() {
         type: 'surface',
         colorscale: 'Viridis',
         opacity: 0.85,
-        name: 'Probability Density Mesh',
+        name: 'Thousands of simulated future paths',
         showscale: false
       }
     ];
@@ -195,8 +195,8 @@ export default function ProjectionSurface() {
       {/* Parameters Header Segment */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold tracking-wider text-slate-100 uppercase">3D Projection Surface</h2>
-          <p className="text-xs text-slate-400 font-mono mt-1">10,000-path probabilistic forecasting mesh and terminal quantiles</p>
+          <h2 className="text-xl font-bold tracking-wider text-slate-100 uppercase">Possible Future Price Range (3D Visual)</h2>
+          <p className="text-xs text-slate-400 font-mono mt-1">Interactive 3D view of simulated future paths and probability boundaries</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -252,12 +252,12 @@ export default function ProjectionSurface() {
             <Plot
               data={construct3DPlotData()}
               layout={{
-                title: { text: `3D Probabilistic Density Mesh (Z = Density)`, font: { color: '#F1F5F9', family: 'Inter', size: 12 } },
+                title: { text: `Thousands of simulated future paths (3D Mesh)`, font: { color: '#F1F5F9', family: 'Inter', size: 12 } },
                 autosize: true,
                 scene: {
                   xaxis: { title: { text: 'Time Step', font: { color: '#94A3B8', size: 9 } }, tickfont: { color: '#64748B' }, gridcolor: '#1F2942/30' },
                   yaxis: { title: { text: 'Price ($)', font: { color: '#94A3B8', size: 9 } }, tickfont: { color: '#64748B' }, gridcolor: '#1F2942/30' },
-                  zaxis: { title: { text: 'Density', font: { color: '#94A3B8', size: 9 } }, tickfont: { color: '#64748B' }, gridcolor: '#1F2942/30' },
+                  zaxis: { title: { text: 'Likelihood', font: { color: '#94A3B8', size: 9 } }, tickfont: { color: '#64748B' }, gridcolor: '#1F2942/30' },
                   camera: { eye: { x: 1.5, y: 1.5, z: 1.2 } },
                   bgcolor: 'rgba(0,0,0,0)'
                 },
