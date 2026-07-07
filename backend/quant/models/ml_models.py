@@ -101,9 +101,7 @@ def build_features(
         for i in range(n):
             vol_idx = i + 1
             if vol_idx < len(volumes) and vol_idx >= 1 and volumes[vol_idx - 1] > 0:
-                features[i, 14] = (
-                    volumes[vol_idx] / volumes[vol_idx - 1] - 1.0
-                )
+                features[i, 14] = volumes[vol_idx] / volumes[vol_idx - 1] - 1.0
 
     # Volatility percentile: rank of current 20d vol within 252d window
     for i in range(n):

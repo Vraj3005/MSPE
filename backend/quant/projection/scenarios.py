@@ -7,7 +7,7 @@ expected return, confidence intervals, and sample paths.
 """
 
 import numpy as np
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass, field
 
 
@@ -74,9 +74,15 @@ def extract_scenarios(
     result = ProjectionScenarios(spot=spot)
 
     # Full-path percentile paths
-    result.bear_path = [float(np.percentile(paths[:, t], 10.0)) for t in range(paths.shape[1])]
-    result.base_path = [float(np.percentile(paths[:, t], 50.0)) for t in range(paths.shape[1])]
-    result.bull_path = [float(np.percentile(paths[:, t], 90.0)) for t in range(paths.shape[1])]
+    result.bear_path = [
+        float(np.percentile(paths[:, t], 10.0)) for t in range(paths.shape[1])
+    ]
+    result.base_path = [
+        float(np.percentile(paths[:, t], 50.0)) for t in range(paths.shape[1])
+    ]
+    result.bull_path = [
+        float(np.percentile(paths[:, t], 90.0)) for t in range(paths.shape[1])
+    ]
 
     # Sample paths for visualization (5 random paths)
     n_paths = paths.shape[0]

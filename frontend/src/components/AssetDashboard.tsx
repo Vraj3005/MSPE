@@ -153,7 +153,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
         return 'text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/20 dark:border-amber-900/30';
       case 'LOW':
       default:
-        return 'text-teal-750 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-950/20 dark:border-teal-900/30';
+        return 'text-teal-800 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-950/20 dark:border-teal-900/30';
     }
   };
 
@@ -345,7 +345,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
       </div>
 
       {/* 2. Asset Selector */}
-      <div className="flex bg-slate-100 dark:bg-[#0B0F19]/60 p-1 rounded-xl gap-1.5 border border-slate-250/50 dark:border-[#1F2942]/60 max-w-xl">
+      <div className="flex bg-slate-100 dark:bg-[#0B0F19]/60 p-1 rounded-xl gap-1.5 border border-slate-200/50 dark:border-[#1F2942]/60 max-w-xl">
         {assetsList.map(item => (
           <button
             key={item.id}
@@ -357,7 +357,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
                   : 'bg-[#151D30] text-cyan-400 border border-[#1F2942]/60 font-bold'
                 : theme === 'light'
                   ? 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
-                  : 'text-slate-450 hover:text-slate-200 hover:bg-[#151D30]/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#151D30]/20'
             }`}
           >
             {item.name}
@@ -507,7 +507,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
           <table className="w-full text-left font-mono text-xs border-collapse">
             <thead>
               <tr className={`border-b text-[10px] uppercase font-sans font-bold tracking-wider ${
-                theme === 'light' ? 'border-slate-150 text-slate-500' : 'border-[#1F2942]/60 text-slate-455'
+                theme === 'light' ? 'border-slate-200 text-slate-500' : 'border-[#1F2942]/60 text-slate-400'
               }`}>
                 <th className="pb-3 pl-2">Scenario Horizon</th>
                 <th className="pb-3">Bear Case (P10)</th>
@@ -577,7 +577,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
               }`}>
                 What the Projection Says
               </h4>
-              <p className={`text-[11px] leading-relaxed font-medium ${theme === 'light' ? 'text-slate-655' : 'text-slate-400'}`}>
+              <p className={`text-[11px] leading-relaxed font-medium ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
                 {projection.explanation_text.summary}
               </p>
             </div>
@@ -588,7 +588,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
               }`}>
                 Why It Produced This Result
               </h4>
-              <p className={`text-[11px] leading-relaxed font-medium ${theme === 'light' ? 'text-slate-655' : 'text-slate-400'}`}>
+              <p className={`text-[11px] leading-relaxed font-medium ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
                 {projection.explanation_text.reason}
               </p>
             </div>
@@ -599,7 +599,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
               }`}>
                 What Risk to Watch
               </h4>
-              <p className={`text-[11px] leading-relaxed font-medium ${theme === 'light' ? 'text-slate-655' : 'text-slate-400'}`}>
+              <p className={`text-[11px] leading-relaxed font-medium ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
                 {projection.explanation_text.warning}
               </p>
             </div>
@@ -610,7 +610,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
               }`}>
                 How Reliable the Projection Is
               </h4>
-              <p className={`text-[11px] leading-relaxed font-medium ${theme === 'light' ? 'text-slate-655' : 'text-slate-400'}`}>
+              <p className={`text-[11px] leading-relaxed font-medium ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>
                 Projections are historically audited using walk-forward testing. S&P 500 benchmarks report a range-coverage hit rate of 98.3% at 95% confidence bands, while high-volatility cryptocurrencies fall between 90% and 92.5% accuracy limits.
               </p>
             </div>

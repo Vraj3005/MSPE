@@ -48,7 +48,7 @@ export default function DashboardPage() {
       case 'RISK':
         return <PortfolioRisk theme={theme} />;
       case 'SURFACE':
-        return <ProjectionSurface />;
+        return <ProjectionSurface theme={theme} />;
       case 'VALIDATION':
         return <ValidationPage theme={theme} />;
       case 'METHODOLOGY':

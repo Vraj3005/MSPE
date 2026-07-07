@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.app.api.dependencies.db import get_db
-from backend.app.schemas.results import DashboardResultsResponse as V2Response
 from backend.app.services.result_engine import ResultEngineService
 from backend.app.core.logging import logger
 

@@ -54,13 +54,13 @@ export default function ValidationPage({ theme = 'light' }: ValidationPageProps)
     const label = getReliabilityLabel(rate);
     switch (label) {
       case 'Optimal':
-        return 'text-emerald-700 bg-emerald-50 border-emerald-250 dark:text-emerald-450 dark:bg-emerald-950/20 dark:border-emerald-900/30';
+        return 'text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-950/20 dark:border-emerald-900/30';
       case 'Highly Reliable':
         return 'text-indigo-700 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-950/20 dark:border-indigo-900/30';
       case 'Stable':
-        return 'text-amber-800 bg-amber-50 border-amber-250 dark:text-amber-400 dark:bg-amber-950/20 dark:border-amber-900/30';
+        return 'text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/20 dark:border-amber-900/30';
       default:
-        return 'text-rose-700 bg-rose-50 border-rose-250 dark:text-rose-450 dark:bg-rose-950/20 dark:border-rose-900/30';
+        return 'text-rose-700 bg-rose-50 border-rose-200 dark:text-rose-400 dark:bg-rose-950/20 dark:border-rose-900/30';
     }
   };
 
@@ -123,7 +123,7 @@ export default function ValidationPage({ theme = 'light' }: ValidationPageProps)
           }`}>
             Validation
           </h1>
-          <p className={`text-sm mt-2 font-medium leading-relaxed max-w-3xl ${theme === 'light' ? 'text-slate-655' : 'text-slate-400'}`}>
+          <p className={`text-sm mt-2 font-medium leading-relaxed max-w-3xl ${theme === 'light' ? 'text-slate-650 font-bold' : 'text-slate-400'}`}>
             Validation checks whether historical prices stayed inside MSPE’s projected range. This is better than only showing future-looking charts.
           </p>
         </div>
@@ -219,7 +219,7 @@ export default function ValidationPage({ theme = 'light' }: ValidationPageProps)
             <table className="w-full text-left font-mono text-xs border-collapse">
               <thead>
                 <tr className={`border-b text-[10px] uppercase font-sans font-bold tracking-wider ${
-                  theme === 'light' ? 'border-slate-150 text-slate-500' : 'border-[#1F2942]/60 text-slate-455'
+                  theme === 'light' ? 'border-slate-200 text-slate-500' : 'border-[#1F2942]/60 text-slate-400'
                 }`}>
                   <th className="pb-3 pl-2">Asset</th>
                   <th className="pb-3">7D Range Hit Rate</th>
@@ -275,7 +275,7 @@ export default function ValidationPage({ theme = 'light' }: ValidationPageProps)
             <table className="w-full text-left font-mono text-xs border-collapse">
               <thead>
                 <tr className={`border-b text-[10px] uppercase font-sans font-bold tracking-wider ${
-                  theme === 'light' ? 'border-slate-150 text-slate-500' : 'border-[#1F2942]/60 text-slate-455'
+                  theme === 'light' ? 'border-slate-200 text-slate-500' : 'border-[#1F2942]/60 text-slate-400'
                 }`}>
                   <th className="pb-3 pl-2">Model Target</th>
                   <th className="pb-3">MAE</th>
@@ -318,7 +318,7 @@ export default function ValidationPage({ theme = 'light' }: ValidationPageProps)
           <Info className="w-5 h-5 text-indigo-500" />
           Validation Methodology & Utility
         </h3>
-        <p className={`text-xs leading-relaxed font-medium ${theme === 'light' ? 'text-slate-655' : 'text-slate-400'}`}>
+        <p className={`text-xs leading-relaxed font-medium ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>
           Why validate? Validating projections checks whether historical prices stayed inside MSPE's projected range. This is better than only showing future-looking charts because it provides empirical proof of model integrity. For standard users and quantitative recruiters, it guarantees that simulated risk scores are tied to historical accuracy indices rather than arbitrary parameters.
         </p>
       </div>

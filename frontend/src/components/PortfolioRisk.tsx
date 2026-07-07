@@ -164,7 +164,7 @@ export default function PortfolioRisk({ theme = 'light' }: PortfolioRiskProps) {
         return 'text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/20 dark:border-amber-900/30';
       case 'LOW':
       default:
-        return 'text-teal-750 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-950/20 dark:border-teal-900/30';
+        return 'text-teal-800 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-950/20 dark:border-teal-900/30';
     }
   };
 
@@ -247,7 +247,7 @@ export default function PortfolioRisk({ theme = 'light' }: PortfolioRiskProps) {
               <div className="w-full">
                 <div className="flex justify-between items-center mb-2">
                   <span className={`text-[10px] font-mono tracking-wider font-bold ${
-                    theme === 'light' ? 'text-slate-455' : 'text-slate-500'
+                    theme === 'light' ? 'text-slate-500' : 'text-slate-400'
                   }`}>{s}</span>
                   <span className={`text-[9px] uppercase font-bold tracking-wide px-2 py-0.5 rounded border ${getRiskBadgeColor(risk.risk_level)}`}>
                     {risk.risk_level}
@@ -344,14 +344,14 @@ export default function PortfolioRisk({ theme = 'light' }: PortfolioRiskProps) {
                 <div 
                   key={idx} 
                   className={`p-4 rounded-xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-3 ${
-                    theme === 'light' ? 'bg-slate-50 border-slate-150' : 'bg-[#0B0F19]/40 border-[#1F2942]/40'
+                    theme === 'light' ? 'bg-slate-50 border-slate-200' : 'bg-[#0B0F19]/40 border-[#1F2942]/40'
                   }`}
                 >
                   <div className="space-y-1 max-w-md">
-                    <strong className={`text-xs block font-bold uppercase tracking-wider ${theme === 'light' ? 'text-slate-850' : 'text-slate-200'}`}>
+                    <strong className={`text-xs block font-bold uppercase tracking-wider ${theme === 'light' ? 'text-slate-800' : 'text-slate-200'}`}>
                       {scenario.scenario_name}
                     </strong>
-                    <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-550' : 'text-slate-450'}`}>
+                    <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>
                       {scenario.explanation}
                     </p>
                   </div>
@@ -368,7 +368,7 @@ export default function PortfolioRisk({ theme = 'light' }: PortfolioRiskProps) {
               ))}
             </div>
           </div>
-          <div className="border-t pt-3 mt-4 text-[10px] font-medium leading-relaxed text-slate-450">
+          <div className="border-t pt-3 mt-4 text-[10px] font-medium leading-relaxed text-slate-400">
             Shocks represent theoretical changes based on historical covariance scales and tail volatility bounds.
           </div>
         </div>
@@ -429,7 +429,7 @@ export default function PortfolioRisk({ theme = 'light' }: PortfolioRiskProps) {
           <table className="w-full text-left font-mono text-xs border-collapse">
             <thead>
               <tr className={`border-b text-[10px] uppercase font-sans font-bold tracking-wider ${
-                theme === 'light' ? 'border-slate-150 text-slate-500' : 'border-[#1F2942]/60 text-slate-455'
+                theme === 'light' ? 'border-slate-200 text-slate-500' : 'border-[#1F2942]/60 text-slate-400'
               }`}>
                 <th className="pb-3 pl-2">Asset Symbol</th>
                 <th className="pb-3">Risk Score</th>

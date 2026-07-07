@@ -33,11 +33,8 @@ _CACHE_TTL_SECONDS: float = 300.0  # 5 minutes
 from backend.app.core.logging import logger
 from backend.app.models.asset import Asset
 from backend.app.models.market_data import MarketBar
-from backend.app.models.forecast import MarketForecast
 
 from backend.quant.models.model_registry import (
-    get_all_models,
-    get_model_by_name,
     fit_single_model,
 )
 from backend.quant.validation.walk_forward import (
@@ -63,33 +60,19 @@ from backend.app.services.explanation_engine import ExplanationEngine
 
 # Legacy schemas (backward compatibility for existing frontend)
 from backend.app.schemas.dashboard import (
-    DashboardOverviewResponse,
-    AssetCard,
-    TopCard,
-    AssetSummary,
-    AssetProjectionResponse,
     AssetInfo,
-    HorizonResult,
     DensityData,
     ExplanationText,
     AssetRiskResponse,
     StressScenario,
     RiskExplanation,
     MethodologyResponse,
-    HorizonProjection,
-    AssetRiskSummary,
-    AssetDashboardResult,
-    DashboardResultsResponse,
-    CurrentMarketData,
-    
-    # New clean schemas
     DashboardOverviewResult,
     AssetProjectionResult,
     HorizonResultDetail,
     ValidationSummary,
     ValidationSummaryItem,
 )
-
 
 # ============================================================
 # Asset metadata & demo configuration
@@ -144,9 +127,7 @@ def generate_synthetic_prices(
     Used for demo mode so the full pipeline runs on realistic data
     instead of returning hardcoded constants.
     """
-    rng = np.random.RandomState(
-        int(spot * 100) % 2**31
-    )  # Deterministic per asset
+    rng = np.random.RandomState(int(spot * 100) % 2**31)  # Deterministic per asset
     dt = 1.0 / 252.0
     prices = [spot]
 
@@ -278,7 +259,11 @@ def generate_explanation(
     )
 
     # What risk to watch
-    vol_context = "above average" if volatility > 0.30 else "moderate" if volatility > 0.15 else "below average"
+    vol_context = (
+        "above average"
+        if volatility > 0.30
+        else "moderate" if volatility > 0.15 else "below average"
+    )
 
     what_risk = (
         f"Risk is {risk.risk_level} (score {risk.risk_score:.0f}/100). "
@@ -294,7 +279,9 @@ def generate_explanation(
     if coverage_pct >= 75:
         reliability_note = "This is a well-calibrated model."
     elif coverage_pct >= 60:
-        reliability_note = "Calibration is moderate — treat projections as rough ranges."
+        reliability_note = (
+            "Calibration is moderate — treat projections as rough ranges."
+        )
     else:
         reliability_note = "Calibration is limited — use these projections cautiously."
 
@@ -330,7 +317,9 @@ def run_asset_pipeline_fast(
     spot = float(prices[-1])
 
     if len(returns) < 30:
-        return _minimal_asset_result(symbol, name, asset_class, spot, latest_date, is_demo)
+        return _minimal_asset_result(
+            symbol, name, asset_class, spot, latest_date, is_demo
+        )
 
     # Use rolling mean baseline directly (no walk-forward)
     lookback = min(30, len(returns))
@@ -376,9 +365,13 @@ def run_asset_pipeline_fast(
         selected_model="rolling_mean_baseline",
         model_reason="Fast mode — using rolling mean baseline for instant results. Full validation runs in background.",
         validation_summary=ValidationMetrics(
-            mae=0.0, rmse=0.0, directional_accuracy=0.5,
-            interval_coverage=0.80, var_breach_rate=0.05,
-            band_width=0.10, calibration_score=0.5,
+            mae=0.0,
+            rmse=0.0,
+            directional_accuracy=0.5,
+            interval_coverage=0.80,
+            var_breach_rate=0.05,
+            band_width=0.10,
+            calibration_score=0.5,
         ),
         models_compared=1,
         baseline_beaten=False,
@@ -391,13 +384,19 @@ def run_asset_pipeline_fast(
             scenario_7d = s
             break
 
-    direction = "positive" if scenario_7d and scenario_7d.expected_return >= 0 else "negative"
+    direction = (
+        "positive" if scenario_7d and scenario_7d.expected_return >= 0 else "negative"
+    )
     explanation = ExplanationResult(
         what_mspe_expects=(
-            f"{symbol} base-case 7-day projection: ${scenario_7d.base_price:,.2f} "
-            f"({scenario_7d.expected_return:+.1%}). "
-            f"Bear: ${scenario_7d.bear_price:,.2f}, Bull: ${scenario_7d.bull_price:,.2f}."
-        ) if scenario_7d else "Computing...",
+            (
+                f"{symbol} base-case 7-day projection: ${scenario_7d.base_price:,.2f} "
+                f"({scenario_7d.expected_return:+.1%}). "
+                f"Bear: ${scenario_7d.bear_price:,.2f}, Bull: ${scenario_7d.bull_price:,.2f}."
+            )
+            if scenario_7d
+            else "Computing..."
+        ),
         why_this_result="Using rolling mean baseline for fast results. Full model comparison computing in background.",
         what_risk_to_watch=f"Risk is {risk.risk_level} (score {risk.risk_score:.0f}/100). VaR(95%): {risk.var_95:.2%}.",
         how_reliable="Fast mode — full walk-forward validation will update these results shortly.",
@@ -405,8 +404,12 @@ def run_asset_pipeline_fast(
 
     market_read = classify_market_read(drift_annual, vol_annual)
     daily_ret = float(returns[-1])
-    seven_day_ret = float((prices[-1] - prices[-8]) / prices[-8]) if len(prices) >= 8 else None
-    thirty_day_ret = float((prices[-1] - prices[-31]) / prices[-31]) if len(prices) >= 31 else None
+    seven_day_ret = (
+        float((prices[-1] - prices[-8]) / prices[-8]) if len(prices) >= 8 else None
+    )
+    thirty_day_ret = (
+        float((prices[-1] - prices[-31]) / prices[-31]) if len(prices) >= 31 else None
+    )
 
     explainability = ExplanationEngine.generate_explainability_layer(
         symbol=symbol,
@@ -436,7 +439,9 @@ def run_asset_pipeline_fast(
         latest_date=latest_date,
         daily_return=round(daily_ret, 6),
         seven_day_return=round(seven_day_ret, 6) if seven_day_ret is not None else None,
-        thirty_day_return=round(thirty_day_ret, 6) if thirty_day_ret is not None else None,
+        thirty_day_return=(
+            round(thirty_day_ret, 6) if thirty_day_ret is not None else None
+        ),
         projections=projections,
         risk=risk,
         model_selection=model_selection,
@@ -472,7 +477,9 @@ def run_asset_pipeline(
 
     if len(returns) < 30:
         # Not enough data — return minimal result
-        return _minimal_asset_result(symbol, name, asset_class, spot, latest_date, is_demo)
+        return _minimal_asset_result(
+            symbol, name, asset_class, spot, latest_date, is_demo
+        )
 
     # 1. Walk-forward validation (select best model for 7-day horizon)
     wf_result = run_walk_forward_validation(
@@ -500,7 +507,11 @@ def run_asset_pipeline(
     else:
         expected_ret_7d = selected["expected_return"]
         vol_annual = selected["expected_volatility"]
-        drift_annual = expected_ret_7d / (7.0 / 252.0) if expected_ret_7d != 0 else float(np.mean(returns[-30:]) * 252.0)
+        drift_annual = (
+            expected_ret_7d / (7.0 / 252.0)
+            if expected_ret_7d != 0
+            else float(np.mean(returns[-30:]) * 252.0)
+        )
 
     # 3. Run Monte Carlo projection
     scenarios = QuantitativeProjectionEngine.run_projection(
@@ -547,9 +558,13 @@ def run_asset_pipeline(
 
     if best_mvr is None:
         validation_metrics = ValidationMetrics(
-            mae=0.0, rmse=0.0, directional_accuracy=0.5,
-            interval_coverage=0.5, var_breach_rate=0.05,
-            band_width=0.10, calibration_score=0.5,
+            mae=0.0,
+            rmse=0.0,
+            directional_accuracy=0.5,
+            interval_coverage=0.5,
+            var_breach_rate=0.05,
+            band_width=0.10,
+            calibration_score=0.5,
         )
     else:
         validation_metrics = ValidationMetrics(
@@ -583,8 +598,12 @@ def run_asset_pipeline(
     # 8. Market read
     market_read = classify_market_read(drift_annual, vol_annual)
     daily_ret = float(returns[-1])
-    seven_day_ret = float((prices[-1] - prices[-8]) / prices[-8]) if len(prices) >= 8 else None
-    thirty_day_ret = float((prices[-1] - prices[-31]) / prices[-31]) if len(prices) >= 31 else None
+    seven_day_ret = (
+        float((prices[-1] - prices[-8]) / prices[-8]) if len(prices) >= 8 else None
+    )
+    thirty_day_ret = (
+        float((prices[-1] - prices[-31]) / prices[-31]) if len(prices) >= 31 else None
+    )
 
     # Find 7D scenario
     scenario_7d = None
@@ -630,7 +649,9 @@ def run_asset_pipeline(
         latest_date=latest_date,
         daily_return=round(daily_ret, 6),
         seven_day_return=round(seven_day_ret, 6) if seven_day_ret is not None else None,
-        thirty_day_return=round(thirty_day_ret, 6) if thirty_day_ret is not None else None,
+        thirty_day_return=(
+            round(thirty_day_ret, 6) if thirty_day_ret is not None else None
+        ),
         projections=projections,
         risk=risk,
         model_selection=model_selection,
@@ -648,8 +669,12 @@ def run_asset_pipeline(
 
 
 def _minimal_asset_result(
-    symbol: str, name: str, asset_class: str, spot: float,
-    latest_date: datetime, is_demo: bool,
+    symbol: str,
+    name: str,
+    asset_class: str,
+    spot: float,
+    latest_date: datetime,
+    is_demo: bool,
 ) -> AssetResult:
     """Returns a minimal result when there's not enough data."""
     return AssetResult(
@@ -661,18 +686,25 @@ def _minimal_asset_result(
         daily_return=0.0,
         projections=[],
         risk=RiskResult(
-            risk_score=50.0, risk_level="Medium",
-            var_95=0.03, cvar_95=0.04,
-            max_drawdown=0.10, volatility=0.20,
+            risk_score=50.0,
+            risk_level="Medium",
+            var_95=0.03,
+            cvar_95=0.04,
+            max_drawdown=0.10,
+            volatility=0.20,
             downside_probability=0.50,
         ),
         model_selection=ModelSelectionInfo(
             selected_model="none",
             model_reason="Insufficient data for model selection.",
             validation_summary=ValidationMetrics(
-                mae=0.0, rmse=0.0, directional_accuracy=0.5,
-                interval_coverage=0.5, var_breach_rate=0.05,
-                band_width=0.10, calibration_score=0.0,
+                mae=0.0,
+                rmse=0.0,
+                directional_accuracy=0.5,
+                interval_coverage=0.5,
+                var_breach_rate=0.05,
+                band_width=0.10,
+                calibration_score=0.0,
             ),
             models_compared=0,
             baseline_beaten=False,
@@ -704,7 +736,9 @@ class ResultEngineService:
     """Service layer that connects the pipeline to the database and API."""
 
     @classmethod
-    async def get_dashboard_results(cls, db: AsyncSession) -> V2DashboardResultsResponse:
+    async def get_dashboard_results(
+        cls, db: AsyncSession
+    ) -> V2DashboardResultsResponse:
         """Main entry point for the dashboard results endpoint.
 
         Runs the full pipeline for each tracked asset.
@@ -752,7 +786,9 @@ class ResultEngineService:
                     results_map[asset.ticker] = result
                 except Exception as e:
                     logger.error(f"Fast pipeline failed for {asset.ticker}: {e}")
-                    results_map[asset.ticker] = cls._run_demo_pipeline_fast(asset.ticker)
+                    results_map[asset.ticker] = cls._run_demo_pipeline_fast(
+                        asset.ticker
+                    )
             data_mode = "live"
         else:
             # Demo mode: generate synthetic data and run fast pipeline
@@ -772,7 +808,9 @@ class ResultEngineService:
         # Cache the fast results
         _results_cache = response
         _cache_timestamp = time.time()
-        logger.info(f"MSPE v2.0 fast results cached. Will upgrade via background validation.")
+        logger.info(
+            "MSPE v2.0 fast results cached. Will upgrade via background validation."
+        )
 
         # Kick off background full validation to upgrade the cache
         asyncio.create_task(cls._upgrade_cache_with_validation(data_mode))
@@ -805,13 +843,13 @@ class ResultEngineService:
             logger.error(f"Background validation failed: {e}")
 
     @classmethod
-    async def _run_live_pipeline_fast(cls, db: AsyncSession, asset: Asset) -> AssetResult:
+    async def _run_live_pipeline_fast(
+        cls, db: AsyncSession, asset: Asset
+    ) -> AssetResult:
         """Fast live pipeline — uses DB data but skips walk-forward validation."""
         bars_res = await db.execute(
             select(MarketBar)
-            .where(
-                and_(MarketBar.asset_id == asset.id, MarketBar.resolution == "1d")
-            )
+            .where(and_(MarketBar.asset_id == asset.id, MarketBar.resolution == "1d"))
             .order_by(MarketBar.timestamp.desc())
             .limit(253)
         )
@@ -863,9 +901,7 @@ class ResultEngineService:
         # Fetch price bars (up to 253 days)
         bars_res = await db.execute(
             select(MarketBar)
-            .where(
-                and_(MarketBar.asset_id == asset.id, MarketBar.resolution == "1d")
-            )
+            .where(and_(MarketBar.asset_id == asset.id, MarketBar.resolution == "1d"))
             .order_by(MarketBar.timestamp.desc())
             .limit(253)
         )
@@ -1005,7 +1041,8 @@ class ResultEngineService:
 
     @classmethod
     async def get_dashboard_overview(
-        cls, db: AsyncSession,
+        cls,
+        db: AsyncSession,
     ) -> DashboardOverviewResult:
         """GET /api/dashboard/overview: Returns DashboardOverviewResult."""
         v2_results = await cls.get_dashboard_results(db)
@@ -1037,7 +1074,9 @@ class ResultEngineService:
                 highest_vol = vol
                 highest_ticker = symbol
 
-        avg_loss_prob_7d = total_loss_prob_7d / len(v2_results.assets) if v2_results.assets else 0.45
+        avg_loss_prob_7d = (
+            total_loss_prob_7d / len(v2_results.assets) if v2_results.assets else 0.45
+        )
 
         # Compile validation summary
         validation_metrics = []
@@ -1045,11 +1084,36 @@ class ResultEngineService:
             val_item = ValidationSummaryItem(
                 ticker=symbol,
                 lookback_window="252 Days",
-                annualized_volatility={ "BTCUSDT": 0.45, "ETHUSDT": 0.525, "SPX": 0.145, "XAU": 0.182 }.get(symbol, 0.20),
-                sharpe_ratio={ "BTCUSDT": 0.55, "ETHUSDT": -0.58, "SPX": 2.28, "XAU": 1.64 }.get(symbol, 1.0),
-                range_hit_rate_7d={ "BTCUSDT": 1.0, "ETHUSDT": 1.0, "SPX": 1.0, "XAU": 0.70 }.get(symbol, 0.8),
-                base_case_error_mape={ "BTCUSDT": 0.0132, "ETHUSDT": 0.015, "SPX": 0.0029, "XAU": 0.0114 }.get(symbol, 0.02),
-                risk_model_reliability={ "BTCUSDT": 0.983, "ETHUSDT": 1.0, "SPX": 0.967, "XAU": 0.90 }.get(symbol, 0.95),
+                annualized_volatility={
+                    "BTCUSDT": 0.45,
+                    "ETHUSDT": 0.525,
+                    "SPX": 0.145,
+                    "XAU": 0.182,
+                }.get(symbol, 0.20),
+                sharpe_ratio={
+                    "BTCUSDT": 0.55,
+                    "ETHUSDT": -0.58,
+                    "SPX": 2.28,
+                    "XAU": 1.64,
+                }.get(symbol, 1.0),
+                range_hit_rate_7d={
+                    "BTCUSDT": 1.0,
+                    "ETHUSDT": 1.0,
+                    "SPX": 1.0,
+                    "XAU": 0.70,
+                }.get(symbol, 0.8),
+                base_case_error_mape={
+                    "BTCUSDT": 0.0132,
+                    "ETHUSDT": 0.015,
+                    "SPX": 0.0029,
+                    "XAU": 0.0114,
+                }.get(symbol, 0.02),
+                risk_model_reliability={
+                    "BTCUSDT": 0.983,
+                    "ETHUSDT": 1.0,
+                    "SPX": 0.967,
+                    "XAU": 0.90,
+                }.get(symbol, 0.95),
             )
             validation_metrics.append(val_item)
 
@@ -1093,12 +1157,16 @@ class ResultEngineService:
         """GET /api/assets/{symbol}/projection detail endpoint."""
         if symbol not in TRACKED_ASSETS:
             from fastapi import HTTPException
-            raise HTTPException(status_code=404, detail=f"Asset '{symbol}' not tracked.")
+
+            raise HTTPException(
+                status_code=404, detail=f"Asset '{symbol}' not tracked."
+            )
 
         v2_results = await cls.get_dashboard_results(db)
         result = v2_results.assets.get(symbol)
         if result is None:
             from fastapi import HTTPException
+
             raise HTTPException(status_code=404, detail=f"No results for '{symbol}'.")
 
         return cls._build_projection_result(result)
@@ -1108,12 +1176,16 @@ class ResultEngineService:
         """Legacy GET /api/assets/{symbol}/risk detail endpoint."""
         if symbol not in TRACKED_ASSETS:
             from fastapi import HTTPException
-            raise HTTPException(status_code=404, detail=f"Asset '{symbol}' not tracked.")
+
+            raise HTTPException(
+                status_code=404, detail=f"Asset '{symbol}' not tracked."
+            )
 
         v2_results = await cls.get_dashboard_results(db)
         result = v2_results.assets.get(symbol)
         if result is None:
             from fastapi import HTTPException
+
             raise HTTPException(status_code=404, detail=f"No results for '{symbol}'.")
 
         beta = TRACKED_ASSETS[symbol].get("beta", 1.0)
@@ -1124,25 +1196,29 @@ class ResultEngineService:
                 scenario_name="2008 Financial Crisis",
                 spx_shock=-0.40,
                 portfolio_return_shock=-0.40 * beta if not is_crypto else -0.55,
-                portfolio_usd_impact=-100000.0 * (0.40 * beta if not is_crypto else 0.55),
+                portfolio_usd_impact=-100000.0
+                * (0.40 * beta if not is_crypto else 0.55),
             ),
             StressScenario(
                 scenario_name="COVID-19 Crash 2020",
                 spx_shock=-0.30,
                 portfolio_return_shock=-0.30 * beta if not is_crypto else -0.38,
-                portfolio_usd_impact=-100000.0 * (0.30 * beta if not is_crypto else 0.38),
+                portfolio_usd_impact=-100000.0
+                * (0.30 * beta if not is_crypto else 0.38),
             ),
             StressScenario(
                 scenario_name="2022 Crypto Winter",
                 spx_shock=-0.20,
                 portfolio_return_shock=-0.20 * beta if not is_crypto else -0.45,
-                portfolio_usd_impact=-100000.0 * (0.20 * beta if not is_crypto else 0.45),
+                portfolio_usd_impact=-100000.0
+                * (0.20 * beta if not is_crypto else 0.45),
             ),
             StressScenario(
                 scenario_name="High Inflation Regime",
                 spx_shock=-0.15,
                 portfolio_return_shock=-0.15 * beta if not is_crypto else -0.18,
-                portfolio_usd_impact=-100000.0 * (0.15 * beta if not is_crypto else 0.18),
+                portfolio_usd_impact=-100000.0
+                * (0.15 * beta if not is_crypto else 0.18),
             ),
         ]
 

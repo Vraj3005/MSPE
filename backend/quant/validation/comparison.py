@@ -14,11 +14,9 @@ from typing import Dict, List, Optional
 
 from backend.quant.validation.walk_forward import (
     run_walk_forward_validation,
-    WalkForwardResult,
     ModelValidationResult,
     BASELINE_NAMES,
 )
-
 
 # ============================================================
 # Data structures
@@ -192,7 +190,9 @@ def run_asset_comparison(
                     best_baseline_name = mr.model_name
 
         # Get best model score
-        best_model_score = wf.model_results[0].calibration_score if wf.model_results else 0.0
+        best_model_score = (
+            wf.model_results[0].calibration_score if wf.model_results else 0.0
+        )
 
         # Compute improvement
         improvement = 0.0
@@ -201,8 +201,12 @@ def run_asset_comparison(
 
         # Generate horizon-specific conclusion
         conclusion = _horizon_conclusion(
-            label, wf.selected_model, wf.baseline_beaten,
-            improvement, wf.model_results, symbol,
+            label,
+            wf.selected_model,
+            wf.baseline_beaten,
+            improvement,
+            wf.model_results,
+            symbol,
         )
 
         hcr = HorizonComparisonResult(
@@ -234,7 +238,12 @@ def run_asset_comparison(
 def _compute_user_metrics(result: AssetComparisonResult) -> UserFacingMetrics:
     """Derives simple user-facing metrics from raw validation data."""
     # Pick the primary horizon for user metrics (7D preferred, else longest)
-    primary = result.horizons.get("7D") or result.horizons.get("30D") or result.horizons.get("3D") or result.horizons.get("1D")
+    primary = (
+        result.horizons.get("7D")
+        or result.horizons.get("30D")
+        or result.horizons.get("3D")
+        or result.horizons.get("1D")
+    )
 
     if primary is None or not primary.model_rankings:
         return _default_user_metrics()
@@ -297,11 +306,16 @@ def _compute_user_metrics(result: AssetComparisonResult) -> UserFacingMetrics:
 def _default_user_metrics() -> UserFacingMetrics:
     """Fallback when no validation data is available."""
     return UserFacingMetrics(
-        projection_accuracy="N/A", projection_accuracy_value=0.0,
-        range_reliability="N/A", range_reliability_value=0.0,
-        risk_warning_quality="N/A", risk_warning_quality_value=0.0,
-        baseline_improvement="N/A", baseline_improvement_value=0.0,
-        model_confidence="Low", model_confidence_value=0.0,
+        projection_accuracy="N/A",
+        projection_accuracy_value=0.0,
+        range_reliability="N/A",
+        range_reliability_value=0.0,
+        risk_warning_quality="N/A",
+        risk_warning_quality_value=0.0,
+        baseline_improvement="N/A",
+        baseline_improvement_value=0.0,
+        model_confidence="Low",
+        model_confidence_value=0.0,
     )
 
 
@@ -311,8 +325,11 @@ def _default_user_metrics() -> UserFacingMetrics:
 
 
 def _horizon_conclusion(
-    label: str, best_model: str, beaten: bool,
-    improvement: float, rankings: List[ModelValidationResult],
+    label: str,
+    best_model: str,
+    beaten: bool,
+    improvement: float,
+    rankings: List[ModelValidationResult],
     symbol: str,
 ) -> str:
     """Generates an honest, plain-English conclusion for one horizon."""
@@ -372,13 +389,17 @@ def _asset_conclusion(result: AssetComparisonResult) -> str:
             f"The engine provides meaningful improvement in projection quality."
         )
     elif horizons_beaten > total_horizons / 2:
-        beaten_labels = [h.horizon_label for h in result.horizons.values() if h.baseline_beaten]
+        beaten_labels = [
+            h.horizon_label for h in result.horizons.values() if h.baseline_beaten
+        ]
         return (
             f"MSPE improved projection quality for {result.symbol} at {', '.join(beaten_labels)} horizons, "
             f"while baseline methods remained competitive at other horizons."
         )
     elif horizons_beaten > 0:
-        beaten_labels = [h.horizon_label for h in result.horizons.values() if h.baseline_beaten]
+        beaten_labels = [
+            h.horizon_label for h in result.horizons.values() if h.baseline_beaten
+        ]
         return (
             f"MSPE showed improvement for {result.symbol} only at {', '.join(beaten_labels)}. "
             f"For other horizons, simpler models performed similarly or better. "
@@ -406,7 +427,9 @@ def build_overall_conclusion(full_result: FullComparisonResult) -> str:
             assets_where_mspe_dominates.append(sym)
         elif horizons_beaten > 0:
             # Find which horizons MSPE won
-            won_labels = [h.horizon_label for h in acr.horizons.values() if h.baseline_beaten]
+            won_labels = [
+                h.horizon_label for h in acr.horizons.values() if h.baseline_beaten
+            ]
             assets_with_partial_wins.append((sym, won_labels))
         else:
             assets_where_baseline_dominates.append(sym)
@@ -437,7 +460,10 @@ def build_overall_conclusion(full_result: FullComparisonResult) -> str:
     if not parts:
         return "Insufficient data to draw conclusions."
 
-    conclusion = ". ".join(p[0].upper() + p[1:] if i > 0 else p for i, p in enumerate(parts)) + "."
+    conclusion = (
+        ". ".join(p[0].upper() + p[1:] if i > 0 else p for i, p in enumerate(parts))
+        + "."
+    )
 
     # Add honesty + value note
     conclusion += (
@@ -447,4 +473,3 @@ def build_overall_conclusion(full_result: FullComparisonResult) -> str:
     )
 
     return conclusion
-

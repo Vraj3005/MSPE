@@ -301,7 +301,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
         return 'text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/20 dark:border-amber-900/30';
       case 'LOW':
       default:
-        return 'text-teal-750 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-950/20 dark:border-teal-900/30';
+        return 'text-teal-800 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-950/20 dark:border-teal-900/30';
     }
   };
 
@@ -354,7 +354,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
             syncing 
               ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed dark:bg-[#151D30]/20 dark:border-[#1F2942]' 
               : theme === 'light'
-                ? 'bg-white text-indigo-650 border-indigo-200 hover:bg-indigo-50 active:scale-95 shadow-sm font-bold'
+                ? 'bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50 active:scale-95 shadow-sm font-bold'
                 : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/20 active:scale-95'
           }`}
         >
@@ -619,7 +619,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
                 <h3 className={`text-base font-bold ${theme === 'light' ? 'text-slate-950' : 'text-slate-100'}`}>
                   Downside Risk Snapshot
                 </h3>
-                <p className={`text-xs mt-0.5 ${theme === 'light' ? 'text-slate-655 font-medium' : 'text-slate-500'}`}>
+                <p className={`text-xs mt-0.5 ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-500'}`}>
                   Inspect tail metrics for the selected asset.
                 </p>
               </div>
@@ -634,7 +634,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
                   className={`flex-1 text-center py-1.5 rounded-md text-[10px] font-bold font-mono uppercase transition-all duration-200 ${
                     selectedTicker === s
                       ? theme === 'light'
-                        ? 'bg-white text-indigo-650 shadow-sm border border-slate-200/40'
+                        ? 'bg-white text-indigo-600 shadow-sm border border-slate-200/40'
                         : 'bg-[#151D30] text-cyan-400 border border-[#1F2942]/60'
                       : theme === 'light'
                         ? 'text-slate-600 hover:text-slate-900'
@@ -754,7 +754,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
             <h4 className={`font-bold text-[11px] font-sans uppercase ${theme === 'light' ? 'text-slate-900' : 'text-slate-200'}`}>
               Base Case (P50)
             </h4>
-            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-655 font-medium' : 'text-slate-400'}`}>
+            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
               The middle expected scenario. This represents the median path (50th percentile) and is the most likely trend trajectory.
             </p>
           </div>
@@ -763,7 +763,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
             <h4 className={`font-bold text-[11px] font-sans uppercase ${theme === 'light' ? 'text-slate-900' : 'text-slate-200'}`}>
               Bull Case (P90)
             </h4>
-            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-655 font-medium' : 'text-slate-400'}`}>
+            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
               The upper projected price boundary. Based on our simulations, there is only a 10% chance that the actual price will rise above this level.
             </p>
           </div>
@@ -772,7 +772,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
             <h4 className={`font-bold text-[11px] font-sans uppercase ${theme === 'light' ? 'text-slate-900' : 'text-slate-200'}`}>
               Probability of Loss
             </h4>
-            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-655 font-medium' : 'text-slate-400'}`}>
+            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
               The calculated percentage of simulated future price paths that end up lower than the current price at the end of the 7-day horizon.
             </p>
           </div>
@@ -781,7 +781,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
             <h4 className={`font-bold text-[11px] font-sans uppercase ${theme === 'light' ? 'text-slate-900' : 'text-slate-200'}`}>
               Value at Risk (VaR 95%)
             </h4>
-            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-655 font-medium' : 'text-slate-400'}`}>
+            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
               The estimated maximum loss threshold you could expect to experience on a bad day with 95% confidence (1 in 20 market sessions).
             </p>
           </div>
@@ -790,7 +790,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
             <h4 className={`font-bold text-[11px] font-sans uppercase ${theme === 'light' ? 'text-slate-900' : 'text-slate-200'}`}>
               Conditional VaR (CVaR 95%)
             </h4>
-            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-655 font-medium' : 'text-slate-400'}`}>
+            <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
               The average expected loss if the price breaches the VaR threshold (the worst 5% of outcomes), representing severe crash risk.
             </p>
           </div>

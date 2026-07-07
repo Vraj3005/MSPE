@@ -1,5 +1,8 @@
 """Quick test of the fast pipeline — should complete in < 2 seconds."""
-import sys, os, time
+
+import sys
+import time
+
 sys.path.insert(0, r"c:\Desktop\MSPE_PR")
 
 from backend.app.services.result_engine import (
@@ -30,12 +33,16 @@ for symbol, meta in TRACKED_ASSETS.items():
         is_demo=True,
     )
     elapsed = time.time() - t0
-    print(f"  {symbol:10s} {elapsed:.2f}s  price=${result.latest_price:,.2f}  risk={result.risk.risk_level}")
-    
+    print(
+        f"  {symbol:10s} {elapsed:.2f}s  price=${result.latest_price:,.2f}  risk={result.risk.risk_level}"
+    )
+
     # Print 7d projection
     for p in result.projections:
         if p.horizon_days == 7:
-            print(f"    7d: ${p.bear_price:,.2f} — ${p.base_price:,.2f} — ${p.bull_price:,.2f}  ({p.expected_return:+.2%})")
+            print(
+                f"    7d: ${p.bear_price:,.2f} — ${p.base_price:,.2f} — ${p.bull_price:,.2f}  ({p.expected_return:+.2%})"
+            )
 
 total = time.time() - total_start
 print(f"\nTotal: {total:.2f}s for {len(TRACKED_ASSETS)} assets")

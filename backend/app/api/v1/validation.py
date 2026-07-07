@@ -16,7 +16,6 @@ import os
 import json
 import time
 import asyncio
-import numpy as np
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,13 +39,17 @@ router = APIRouter()
 # Cache for validation results
 _validation_cache: Dict = {}
 _validation_cache_ts: float = 0.0
-_VALIDATION_CACHE_TTL: float = 3600.0  # 1 hour (pre-computed results don't change often)
+_VALIDATION_CACHE_TTL: float = (
+    3600.0  # 1 hour (pre-computed results don't change often)
+)
 
 # Path to pre-computed results
 _REPORTS_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__))
-    )))),
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        )
+    ),
     "reports",
 )
 _VALIDATION_JSON = os.path.join(_REPORTS_DIR, "validation_results.json")

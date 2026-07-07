@@ -17,9 +17,10 @@ import json
 import time
 
 # Ensure project root (MSPE_PR) is on path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
-import numpy as np
 from datetime import datetime, timezone
 
 from backend.quant.validation.comparison import (
@@ -60,7 +61,9 @@ def run_validation():
         )
         returns = risk_calc.compute_daily_returns(prices)
 
-        print(f"  [{symbol}] Running walk-forward validation (4 horizons × 8 models)...")
+        print(
+            f"  [{symbol}] Running walk-forward validation (4 horizons × 8 models)..."
+        )
         acr = run_asset_comparison(
             symbol=symbol,
             asset_name=meta["name"],
@@ -76,16 +79,23 @@ def run_validation():
         # Print quick summary
         um = acr.user_metrics
         if um:
-            print(f"    Accuracy: {um.projection_accuracy}  Range: {um.range_reliability}  Confidence: {um.model_confidence}")
+            print(
+                f"    Accuracy: {um.projection_accuracy}  Range: {um.range_reliability}  Confidence: {um.model_confidence}"
+            )
         for label, hcr in acr.horizons.items():
             beaten = "YES" if hcr.baseline_beaten else "NO "
-            print(f"    {label}: {hcr.best_model:30s} beats_baseline={beaten} score={hcr.best_model_score:.4f}")
+            print(
+                f"    {label}: {hcr.best_model:30s} beats_baseline={beaten} score={hcr.best_model_score:.4f}"
+            )
         print()
 
     result.overall_conclusion = build_overall_conclusion(result)
 
     # Write reports
-    reports_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "reports")
+    reports_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        "reports",
+    )
     os.makedirs(reports_dir, exist_ok=True)
 
     # CSV: model comparison
@@ -96,13 +106,17 @@ def run_validation():
 
     # CSV: asset summary
     summary_csv = build_asset_summary_csv(result)
-    with open(os.path.join(reports_dir, "asset_validation_summary.csv"), "w", newline="") as f:
+    with open(
+        os.path.join(reports_dir, "asset_validation_summary.csv"), "w", newline=""
+    ) as f:
         f.write(summary_csv)
     print("Wrote reports/asset_validation_summary.csv")
 
     # Markdown report
     md = build_validation_markdown(result)
-    with open(os.path.join(reports_dir, "MSPE_MODEL_VALIDATION.md"), "w", encoding="utf-8") as f:
+    with open(
+        os.path.join(reports_dir, "MSPE_MODEL_VALIDATION.md"), "w", encoding="utf-8"
+    ) as f:
         f.write(md)
     print("Wrote reports/MSPE_MODEL_VALIDATION.md")
 
@@ -114,14 +128,16 @@ def run_validation():
         "overall_conclusion": result.overall_conclusion,
         "assets": {sym: acr.to_dict() for sym, acr in result.assets.items()},
     }
-    with open(os.path.join(reports_dir, "validation_results.json"), "w", encoding="utf-8") as f:
+    with open(
+        os.path.join(reports_dir, "validation_results.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump(api_response, f, indent=2, default=str)
     print("Wrote reports/validation_results.json")
 
     total = time.time() - total_start
     print()
     print("=" * 60)
-    print(f"OVERALL CONCLUSION:")
+    print("OVERALL CONCLUSION:")
     print(result.overall_conclusion)
     print(f"\nTotal time: {total:.1f}s")
     print("=" * 60)

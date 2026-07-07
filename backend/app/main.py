@@ -112,7 +112,9 @@ app.add_middleware(
 # Mount API Routers
 app.include_router(api_router, prefix="/api/v1")
 app.include_router(user_api_router, prefix="/api")
-app.include_router(validation_api.router, prefix="/api/validation", tags=["Model Validation"])
+app.include_router(
+    validation_api.router, prefix="/api/validation", tags=["Model Validation"]
+)
 
 
 @app.get("/")

@@ -71,7 +71,9 @@ class ARIMAModel:
         try:
             current_price = self._prices[-1]
             forecast = self._model_res.forecast(steps=horizon)
-            expected_price = forecast.iloc[-1] if hasattr(forecast, "iloc") else forecast[-1]
+            expected_price = (
+                forecast.iloc[-1] if hasattr(forecast, "iloc") else forecast[-1]
+            )
 
             expected_return = float((expected_price / current_price) - 1.0)
 
@@ -169,9 +171,7 @@ class GARCHModel:
             expected_vol = float(expected_vol_daily * np.sqrt(252))
 
             # Return from fitted mean
-            mu_scaled = self._model_res.params.get(
-                "mu", np.mean(self._returns) * 100.0
-            )
+            mu_scaled = self._model_res.params.get("mu", np.mean(self._returns) * 100.0)
             mu = float(mu_scaled) / 100.0
             expected_return = float(mu * horizon)
 
@@ -233,9 +233,7 @@ class EWMAModel:
         ewma_vol_annual = float(ewma_vol_daily * np.sqrt(252))
 
         # Return estimate: exponentially weighted mean
-        weights = np.array(
-            [self._decay ** (n - 1 - i) for i in range(n)]
-        )
+        weights = np.array([self._decay ** (n - 1 - i) for i in range(n)])
         weights /= np.sum(weights)
         ewma_mean = float(np.dot(weights, self._returns))
 

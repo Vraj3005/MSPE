@@ -12,7 +12,7 @@ Replaces the old engine with:
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional
 
 from backend.quant.projection.scenarios import (
     extract_scenarios,

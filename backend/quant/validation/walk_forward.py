@@ -243,7 +243,11 @@ def run_walk_forward_validation(
 
     # Check if the best model beats all baselines
     best_baseline_score = max(
-        (r.calibration_score for r in model_validation_results if r.model_name in BASELINE_NAMES),
+        (
+            r.calibration_score
+            for r in model_validation_results
+            if r.model_name in BASELINE_NAMES
+        ),
         default=0.0,
     )
     baseline_beaten = best.model_name not in BASELINE_NAMES
@@ -281,7 +285,10 @@ def _generate_selection_reason(
     best_baseline = None
     for r in all_results:
         if r.model_name in BASELINE_NAMES:
-            if best_baseline is None or r.calibration_score > best_baseline.calibration_score:
+            if (
+                best_baseline is None
+                or r.calibration_score > best_baseline.calibration_score
+            ):
                 best_baseline = r
 
     improvement = ""

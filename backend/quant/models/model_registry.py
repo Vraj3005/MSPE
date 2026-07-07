@@ -22,7 +22,6 @@ from backend.quant.models.statistical import (
 )
 from backend.quant.models.ml_models import XGBoostReturnModel
 
-
 # Type alias for any model that follows the fit/predict interface
 ProjectionModel = Any
 

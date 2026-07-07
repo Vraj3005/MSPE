@@ -60,7 +60,6 @@ def test_result_engine_output_shape():
     assert btc_result.market_read != ""
 
 
-
 def test_api_response_schema_overview():
     """Test that the overview API returns the correct schema structure."""
     print("  - Testing GET /api/dashboard/overview schema compliance...")
@@ -74,10 +73,8 @@ def test_api_response_schema_overview():
     assert "best_risk_reward_asset" in json_data
     assert "highest_risk_asset" in json_data
     assert "market_summary_text" in json_data
-    assert "top_cards" in json_data
     assert "asset_cards" in json_data
 
-    assert len(json_data["top_cards"]) == 4
     assert len(json_data["asset_cards"]) == 4
 
 
@@ -95,11 +92,9 @@ def test_api_response_schema_assets_list():
     assert "symbol" in first_asset
     assert "name" in first_asset
     assert "asset_class" in first_asset
-    assert "last_close" in first_asset
-    assert "daily_change" in first_asset
-    assert "risk_level" in first_asset
-    assert "base_case_7d" in first_asset
-    assert "probability_of_loss_7d" in first_asset
+    assert "latest_price" in first_asset
+    assert "daily_return" in first_asset
+    assert "horizons" in first_asset
 
 
 def test_api_response_schema_projections():

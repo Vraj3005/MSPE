@@ -53,4 +53,3 @@ def test_validation_summary_base_endpoint():
     assert "ETHUSDT" in json_data["assets"]
     assert "SPX" in json_data["assets"]
     assert "XAU" in json_data["assets"]
-
