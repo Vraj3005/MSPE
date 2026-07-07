@@ -5,13 +5,14 @@ import Sidebar from '../components/Sidebar';
 import MarketOverview from '../components/MarketOverview';
 import AssetDashboard from '../components/AssetDashboard';
 import PortfolioRisk from '../components/PortfolioRisk';
-import BacktestResults from '../components/BacktestResults';
+import ProjectionSurface from '../components/ProjectionSurface';
+import ValidationPage from '../components/ValidationPage';
 import MethodologyPage from '../components/MethodologyPage';
 import { Calendar, Sun, Moon } from 'lucide-react';
 import { copy } from '../content/copy';
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('MARKET');
+  const [activeTab, setActiveTab] = useState<string>('OVERVIEW');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [currentTime, setCurrentTime] = useState<string>('');
   const [mounted, setMounted] = useState<boolean>(false);
@@ -40,14 +41,16 @@ export default function DashboardPage() {
 
   const renderActiveView = () => {
     switch (activeTab) {
-      case 'MARKET':
+      case 'OVERVIEW':
         return <MarketOverview theme={theme} />;
       case 'ASSET':
         return <AssetDashboard theme={theme} />;
-      case 'BACKTEST':
-        return <BacktestResults theme={theme} />;
       case 'RISK':
         return <PortfolioRisk theme={theme} />;
+      case 'SURFACE':
+        return <ProjectionSurface />;
+      case 'VALIDATION':
+        return <ValidationPage theme={theme} />;
       case 'METHODOLOGY':
         return <MethodologyPage theme={theme} />;
       default:
@@ -64,18 +67,15 @@ export default function DashboardPage() {
 
       {/* Main Dashboard Screen Area */}
       <main className="flex-1 ml-64 min-h-screen p-8 flex flex-col gap-6 overflow-x-hidden">
-        {/* Top Quantitative Header Panel */}
+        {/* Top Header Panel */}
         <header className={`px-6 py-4 flex justify-between items-center rounded-xl border transition-all duration-300 ${
           theme === 'light' 
             ? 'bg-white border-slate-200 shadow-sm text-slate-800' 
             : 'glass-panel border-[#1F2942] bg-[#151D30]/30 text-slate-100'
         }`}>
-          <div className="flex items-center gap-3">
-            <span className={`w-2.5 h-2.5 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.6)] ${
-              theme === 'light' ? 'bg-cyan-500' : 'bg-cyan-400'
-            }`} />
-            <h2 className={`text-xs font-bold font-mono tracking-widest uppercase ${
-              theme === 'light' ? 'text-slate-700 font-bold' : 'text-slate-400'
+          <div className="flex items-center gap-2">
+            <h2 className={`text-sm font-bold tracking-tight ${
+              theme === 'light' ? 'text-slate-800' : 'text-slate-200'
             }`}>
               {copy.portalHeader}
             </h2>

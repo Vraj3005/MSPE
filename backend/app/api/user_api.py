@@ -5,9 +5,8 @@ from typing import List
 from backend.app.api.dependencies.db import get_db
 from backend.app.services.result_engine import ResultEngineService
 from backend.app.schemas.dashboard import (
-    DashboardOverviewResponse,
-    AssetSummary,
-    AssetProjectionResponse,
+    DashboardOverviewResult,
+    AssetProjectionResult,
     AssetRiskResponse,
     MethodologyResponse,
 )
@@ -16,7 +15,7 @@ from backend.app.core.logging import logger
 router = APIRouter()
 
 
-@router.get("/dashboard/overview", response_model=DashboardOverviewResponse)
+@router.get("/dashboard/overview", response_model=DashboardOverviewResult)
 async def get_dashboard_overview(db: AsyncSession = Depends(get_db)):
     """GET /api/dashboard/overview: Returns high-level dashboard aggregate performance details."""
     try:
@@ -28,9 +27,9 @@ async def get_dashboard_overview(db: AsyncSession = Depends(get_db)):
         )
 
 
-@router.get("/assets", response_model=List[AssetSummary])
+@router.get("/assets", response_model=List[AssetProjectionResult])
 async def get_assets_list(db: AsyncSession = Depends(get_db)):
-    """GET /api/assets: Returns a simplified snapshot list of all active tracked assets."""
+    """GET /api/assets: Returns a detailed projection-horizon snapshot for all active tracked assets."""
     try:
         return await ResultEngineService.get_assets_summary(db)
     except Exception as e:
@@ -40,9 +39,9 @@ async def get_assets_list(db: AsyncSession = Depends(get_db)):
         )
 
 
-@router.get("/assets/{symbol}/projection", response_model=AssetProjectionResponse)
+@router.get("/assets/{symbol}/projection", response_model=AssetProjectionResult)
 async def get_asset_projection(symbol: str, db: AsyncSession = Depends(get_db)):
-    """GET /api/assets/{symbol}/projection: Returns 30-day projection ranges, simulation paths, and density grid distributions."""
+    """GET /api/assets/{symbol}/projection: Returns projection ranges, volatility bands, and scenario paths."""
     try:
         return await ResultEngineService.get_asset_projection(db, symbol.upper())
     except HTTPException as he:

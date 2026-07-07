@@ -5,7 +5,11 @@ import {
   AssetSummary,
   AssetProjectionResponse,
   AssetRiskResponse,
-  MethodologyResponse
+  MethodologyResponse,
+  
+  // New clean contract types
+  DashboardOverviewResult,
+  AssetProjectionResult
 } from '../../types/results';
 
 export const resultsApi = {
@@ -20,8 +24,8 @@ export const resultsApi = {
     return response.json();
   },
 
-  // V2 Endpoints
-  getDashboardOverview: async (): Promise<DashboardOverviewResponse> => {
+  // V2 Endpoints - Now using the Clean Result Contract
+  getDashboardOverview: async (): Promise<DashboardOverviewResult> => {
     const response = await fetch(`${API_BASE_URL}/api/dashboard/overview`, {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -31,7 +35,7 @@ export const resultsApi = {
     return response.json();
   },
 
-  getAssetsList: async (): Promise<AssetSummary[]> => {
+  getAssetsList: async (): Promise<AssetProjectionResult[]> => {
     const response = await fetch(`${API_BASE_URL}/api/assets`, {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -41,7 +45,7 @@ export const resultsApi = {
     return response.json();
   },
 
-  getAssetProjection: async (symbol: string): Promise<AssetProjectionResponse> => {
+  getAssetProjection: async (symbol: string): Promise<AssetProjectionResult> => {
     const response = await fetch(`${API_BASE_URL}/api/assets/${symbol.toUpperCase()}/projection`, {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -67,6 +71,16 @@ export const resultsApi = {
     });
     if (!response.ok) {
       throw new Error(`[${response.status}] Failed to fetch methodology guidelines`);
+    }
+    return response.json();
+  },
+
+  getValidationSummary: async (): Promise<any> => {
+    const response = await fetch(`${API_BASE_URL}/api/validation/summary`, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!response.ok) {
+      throw new Error(`[${response.status}] Failed to fetch validation summary`);
     }
     return response.json();
   }

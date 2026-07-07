@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { api, TradingSignal, PortfolioExposureSummary } from '../lib/api';
+import { api, TradingSignal, PortfolioExposureSummary } from '../../lib/api';
 import { Zap, ShieldCheck, TrendingUp, TrendingDown, RefreshCw, AlertTriangle, AlertOctagon } from 'lucide-react';
 
 export default function SignalsBoard() {

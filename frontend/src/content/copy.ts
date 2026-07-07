@@ -1,6 +1,6 @@
 export const copy = {
   // Global Header
-  portalHeader: "MSPE SYSTEM PORTAL // MAIN NET",
+  portalHeader: "Market Surface Projection Engine",
   
   // Hero Dashboard
   heroTitle: "Market Surface Projection Engine",

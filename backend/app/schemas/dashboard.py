@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from pydantic import BaseModel, ConfigDict
 from backend.app.schemas.explanations import ExplainabilityLayer
 
@@ -58,10 +58,9 @@ class DashboardResultsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-# ==================== V2 Refactored Schemas ====================
+# ==================== V2 Legacy Schemas ====================
 
 
-# Endpoint 1: Overview
 class TopCard(BaseModel):
     title: str
     value: str
@@ -92,7 +91,6 @@ class DashboardOverviewResponse(BaseModel):
     asset_cards: List[AssetCard]
 
 
-# Endpoint 2: Simple List
 class AssetSummary(BaseModel):
     symbol: str
     name: str
@@ -104,7 +102,6 @@ class AssetSummary(BaseModel):
     probability_of_loss_7d: float
 
 
-# Endpoint 3: Projection Detail
 class AssetInfo(BaseModel):
     symbol: str
     name: str
@@ -149,6 +146,92 @@ class AssetProjectionResponse(BaseModel):
     data_mode: str
 
 
+# ==================== New Clean Result Contract Schemas ====================
+
+
+class HorizonResultDetail(BaseModel):
+    horizon_label: str  # '1D', '3D', '7D', '30D'
+    horizon_days: int  # compatibility
+    bear_case_price: float
+    bear_price: float  # compatibility
+    base_case_price: float
+    base_price: float  # compatibility
+    bull_case_price: float
+    bull_price: float  # compatibility
+    expected_return: float
+    probability_of_gain: float
+    probability_of_loss: float
+    projected_volatility: float
+    confidence_band_width: float  # compatibility
+    risk_score: float
+    risk_level: str
+    var_95: float
+    cvar_95: float
+    explanation: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AssetProjectionResult(BaseModel):
+    symbol: str
+    name: str
+    asset_class: str
+    latest_price: float
+    latest_date: datetime
+    daily_return: float
+    data_mode: str  # 'live' | 'cached' | 'demo'
+    horizons: List[HorizonResultDetail]
+
+    # Dynamic Path Support
+    bear_scenario_path: List[float] = []
+    base_scenario_path: List[float] = []
+    bull_scenario_path: List[float] = []
+    monte_carlo_paths: List[List[float]] = []
+    probability_density_data: Optional[DensityData] = None
+    explainability: Optional[ExplainabilityLayer] = None
+
+    # Compatibility Nesting
+    asset: Optional[AssetInfo] = None
+    projection_horizon_results: Optional[List[HorizonResultDetail]] = None
+    explanation_text: Optional[ExplanationText] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ValidationSummaryItem(BaseModel):
+    ticker: str
+    lookback_window: str
+    annualized_volatility: float
+    sharpe_ratio: float
+    range_hit_rate_7d: float
+    base_case_error_mape: float
+    risk_model_reliability: float
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ValidationSummary(BaseModel):
+    average_hit_rate: float
+    reliability_level: str
+    metrics: List[ValidationSummaryItem]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DashboardOverviewResult(BaseModel):
+    last_updated: datetime
+    data_mode: str  # 'live' | 'cached' | 'demo'
+    total_assets: int
+    highest_risk_asset: str
+    best_risk_reward_asset: str
+    average_probability_of_loss_7d: float
+    asset_cards: List[AssetProjectionResult]
+    market_summary_text: str
+    validation_summary: ValidationSummary
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 # Endpoint 4: Risk Detail
 class StressScenario(BaseModel):
     scenario_name: str
@@ -156,11 +239,15 @@ class StressScenario(BaseModel):
     portfolio_return_shock: float
     portfolio_usd_impact: float
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class RiskExplanation(BaseModel):
     summary: str
     warning: str
     reason: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AssetRiskResponse(BaseModel):
@@ -175,6 +262,8 @@ class AssetRiskResponse(BaseModel):
     plain_language_explanation: RiskExplanation
     data_mode: str
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 # Endpoint 5: Methodology
 class MethodologyResponse(BaseModel):
@@ -182,3 +271,5 @@ class MethodologyResponse(BaseModel):
     monte_carlo_definition: str
     var_definition: str
     limitations: List[str]
+
+    model_config = ConfigDict(from_attributes=True)

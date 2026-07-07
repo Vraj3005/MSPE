@@ -173,3 +173,85 @@ export interface MethodologyResponse {
   var_definition: string;
   limitations: string[];
 }
+
+// ==================== New Clean Result Contract Types ====================
+
+export interface HorizonResultDetail {
+  horizon_label: string; // '1D' | '3D' | '7D' | '30D'
+  horizon_days: number;
+  bear_case_price: number;
+  bear_price: number;
+  base_case_price: number;
+  base_price: number;
+  bull_case_price: number;
+  bull_price: number;
+  expected_return: number;
+  probability_of_gain: number;
+  probability_of_loss: number;
+  projected_volatility: number;
+  confidence_band_width: number;
+  risk_score: number;
+  risk_level: string;
+  var_95: number;
+  cvar_95: number;
+  explanation: string;
+}
+
+export interface AssetProjectionResult {
+  symbol: string;
+  name: string;
+  asset_class: string;
+  latest_price: number;
+  latest_date: string;
+  daily_return: number;
+  data_mode: string; // 'live' | 'cached' | 'demo'
+  horizons: HorizonResultDetail[];
+
+  // Supporting fields for details page and charts
+  bear_scenario_path: number[];
+  base_scenario_path: number[];
+  bull_scenario_path: number[];
+  monte_carlo_paths: number[][];
+  probability_density_data?: DensityData;
+  explainability?: any;
+  
+  // Nested asset detail mapping to prevent breaks on details page
+  asset: {
+    symbol: string;
+    name: string;
+    asset_class: string;
+    last_close: number;
+    latest_date: string;
+  };
+  projection_horizon_results: HorizonResultDetail[];
+  explanation_text: ExplanationText;
+}
+
+export interface ValidationSummaryItem {
+  ticker: string;
+  lookback_window: string;
+  annualized_volatility: number;
+  sharpe_ratio: number;
+  range_hit_rate_7d: number;
+  base_case_error_mape: number;
+  risk_model_reliability: number;
+}
+
+export interface ValidationSummary {
+  average_hit_rate: number;
+  reliability_level: string;
+  metrics: ValidationSummaryItem[];
+}
+
+export interface DashboardOverviewResult {
+  last_updated: string;
+  data_mode: string; // 'live' | 'cached' | 'demo'
+  total_assets: number;
+  highest_risk_asset: string;
+  best_risk_reward_asset: string;
+  average_probability_of_loss_7d: number;
+  asset_cards: AssetProjectionResult[];
+  market_summary_text: string;
+  validation_summary: ValidationSummary;
+}
+

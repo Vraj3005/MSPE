@@ -1,198 +1,152 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import { api, PortfolioRiskMetrics, StressTestSummary, AssetRiskMetrics } from '../lib/api';
-import { Briefcase, RefreshCw, BarChart2, ShieldAlert, ThermometerSnowflake, HelpCircle, CheckCircle } from 'lucide-react';
-import { copy } from '../content/copy';
-
-// Dynamic Plotly heatmaps and bar charts
-const Plot = dynamic(() => import('react-plotly.js'), { 
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-[220px] flex items-center justify-center bg-slate-100/50 rounded-xl border border-slate-200/50 animate-pulse">
-      <div className="text-slate-400 font-mono text-xs flex items-center gap-2">
-        <RefreshCw className="w-4 h-4 animate-spin" /> Compiling Risk Visuals...
-      </div>
-    </div>
-  )
-});
+import { resultsApi } from '../lib/api/results';
+import { AssetProjectionResult, AssetRiskResponse } from '../types/results';
+import { ShieldAlert, HelpCircle, RefreshCw, Info, TrendingDown, CheckCircle, Activity } from 'lucide-react';
 
 interface PortfolioRiskProps {
   theme?: 'light' | 'dark';
 }
 
 export default function PortfolioRisk({ theme = 'light' }: PortfolioRiskProps) {
-  const [portfolioRisk, setPortfolioRisk] = useState<PortfolioRiskMetrics | null>(null);
-  const [stressTest, setStressTest] = useState<StressTestSummary | null>(null);
-  const [assetRisk, setAssetRisk] = useState<AssetRiskMetrics[]>([]);
+  const [selectedTicker, setSelectedTicker] = useState<string>('BTCUSDT');
   const [loading, setLoading] = useState<boolean>(true);
-  const [evaluating, setEvaluating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [evalMessage, setEvalMessage] = useState<string | null>(null);
 
-  const mockPortfolioRisk: PortfolioRiskMetrics = {
-    id: 'pr1',
-    timestamp: new Date().toISOString(),
-    var_95: 0.0215,
-    var_99: 0.0345,
-    expected_shortfall_95: 0.0285,
-    expected_shortfall_99: 0.0425,
-    max_drawdown: 0.1125,
-    sharpe_ratio: 2.15,
-    sortino_ratio: 2.65,
-    calmar_ratio: 1.91,
-    beta: 0.82,
-    alpha: 0.008500,
-    correlation_matrix: {
-      'BTCUSDT': { 'BTCUSDT': 1.0, 'ETHUSDT': 0.82, 'SPX': 0.35, 'XAU': 0.12 },
-      'ETHUSDT': { 'BTCUSDT': 0.82, 'ETHUSDT': 1.0, 'SPX': 0.38, 'XAU': 0.08 },
-      'SPX': { 'BTCUSDT': 0.35, 'ETHUSDT': 0.38, 'SPX': 1.0, 'XAU': -0.15 },
-      'XAU': { 'BTCUSDT': 0.12, 'ETHUSDT': 0.08, 'SPX': -0.15, 'XAU': 1.0 }
-    },
-    stress_test_results: {},
-    details: { weights_allocated: { 'BTCUSDT': 0.30, 'ETHUSDT': 0.20, 'SPX': 0.35, 'XAU': 0.15 } }
+  const [allProjections, setAllProjections] = useState<Record<string, AssetProjectionResult>>({});
+  const [allRisks, setAllRisks] = useState<Record<string, AssetRiskResponse>>({});
+
+  const symbols = ['BTCUSDT', 'ETHUSDT', 'SPX', 'XAU'];
+  const assetNames = {
+    'BTCUSDT': 'Bitcoin',
+    'ETHUSDT': 'Ethereum',
+    'SPX': 'S&P 500 Index',
+    'XAU': 'Gold'
   };
 
-  const mockStressTest: StressTestSummary = {
-    timestamp: new Date().toISOString(),
-    scenarios: [
-      { scenario_name: '2008_GFC', spx_shock: -0.40, asset_shocks: {}, portfolio_return_shock: -0.4125, portfolio_usd_impact: -41250.0 },
-      { scenario_name: 'COVID_CRASH_2020', spx_shock: -0.30, asset_shocks: {}, portfolio_return_shock: -0.2825, portfolio_usd_impact: -28250.0 },
-      { scenario_name: 'DOTCOM_BURST', spx_shock: -0.50, asset_shocks: {}, portfolio_return_shock: -0.4900, portfolio_usd_impact: -49000.0 },
-      { scenario_name: 'CRYPTO_WINTER_2022', spx_shock: -0.20, asset_shocks: {}, portfolio_return_shock: -0.4125, portfolio_usd_impact: -41250.0 },
-      { scenario_name: 'HIGH_INFLATION', spx_shock: -0.15, asset_shocks: {}, portfolio_return_shock: -0.1100, portfolio_usd_impact: -11000.0 }
-    ]
+  const generateMockProjection = (symbol: string): AssetProjectionResult => {
+    const spot = { 'BTCUSDT': 62000.0, 'ETHUSDT': 3200.0, 'SPX': 5100.0, 'XAU': 2300.0 }[symbol] || 100.0;
+    const base_7d = spot * 1.02;
+    const bear_7d = spot * 0.95;
+    const bull_7d = spot * 1.05;
+    const probLoss = { 'BTCUSDT': 0.48, 'ETHUSDT': 0.51, 'SPX': 0.35, 'XAU': 0.41 }[symbol] || 0.45;
+    const riskLvl = { 'BTCUSDT': 'High', 'ETHUSDT': 'Extreme', 'SPX': 'Low', 'XAU': 'Medium' }[symbol] || 'Medium';
+    const riskScr = { 'BTCUSDT': 72, 'ETHUSDT': 85, 'SPX': 25, 'XAU': 38 }[symbol] || 50;
+
+    const mockHorizons = [
+      {
+        horizon_label: '7D',
+        horizon_days: 7,
+        bear_case_price: bear_7d,
+        bear_price: bear_7d,
+        base_case_price: base_7d,
+        base_price: base_7d,
+        bull_case_price: bull_7d,
+        bull_price: bull_7d,
+        expected_return: 0.02,
+        probability_of_gain: 1 - probLoss,
+        probability_of_loss: probLoss,
+        projected_volatility: 0.25,
+        confidence_band_width: 0.10,
+        risk_score: riskScr,
+        risk_level: riskLvl,
+        var_95: 0.02,
+        cvar_95: 0.03,
+        explanation: ''
+      }
+    ];
+
+    return {
+      symbol,
+      name: assetNames[symbol as keyof typeof assetNames] || symbol,
+      asset_class: symbol === 'SPX' ? 'Equity' : symbol === 'XAU' ? 'Commodity' : 'Crypto',
+      latest_price: spot,
+      latest_date: new Date().toISOString(),
+      daily_return: 0.015,
+      data_mode: 'demo',
+      horizons: mockHorizons,
+      bear_scenario_path: [],
+      base_scenario_path: [],
+      bull_scenario_path: [],
+      monte_carlo_paths: [],
+      probability_density_data: undefined,
+      explainability: {
+        winning_model: 'garch',
+        model_scores: { 'garch': 0.82 },
+        feature_importances: {}
+      },
+      asset: {
+        symbol,
+        name: assetNames[symbol as keyof typeof assetNames] || symbol,
+        asset_class: symbol === 'SPX' ? 'Equity' : symbol === 'XAU' ? 'Commodity' : 'Crypto',
+        last_close: spot,
+        latest_date: new Date().toISOString()
+      },
+      projection_horizon_results: mockHorizons,
+      explanation_text: {
+        summary: '',
+        warning: '',
+        reason: ''
+      }
+    };
   };
 
-  const mockAssetRisk: AssetRiskMetrics[] = [
-    {
-      id: 'ar1',
-      asset_id: '1',
-      ticker: 'BTCUSDT',
-      timestamp: new Date().toISOString(),
-      var_95: 0.04820,
-      var_99: 0.07150,
-      expected_shortfall_95: 0.06210,
-      expected_shortfall_99: 0.08900,
-      max_drawdown: 0.22400,
-      sharpe_ratio: 1.85,
-      sortino_ratio: 2.15,
-      calmar_ratio: 1.95,
-      beta: 1.45,
-      alpha: 0.0125,
-      details: { sample_size_days: 252, annualized_volatility: 0.452 }
-    },
-    {
-      id: 'ar2',
-      asset_id: '2',
-      ticker: 'ETHUSDT',
-      timestamp: new Date().toISOString(),
-      var_95: 0.05450,
-      var_99: 0.08200,
-      expected_shortfall_95: 0.07100,
-      expected_shortfall_99: 0.09850,
-      max_drawdown: 0.28500,
-      sharpe_ratio: 1.62,
-      sortino_ratio: 1.88,
-      calmar_ratio: 1.65,
-      beta: 1.62,
-      alpha: 0.0095,
-      details: { sample_size_days: 252, annualized_volatility: 0.524 }
-    },
-    {
-      id: 'ar3',
-      asset_id: '3',
-      ticker: 'SPX',
-      timestamp: new Date().toISOString(),
-      var_95: 0.01250,
-      var_99: 0.01950,
-      expected_shortfall_95: 0.01650,
-      expected_shortfall_99: 0.02450,
-      max_drawdown: 0.08500,
-      sharpe_ratio: 1.25,
-      sortino_ratio: 1.45,
-      calmar_ratio: 1.15,
-      beta: 1.00,
-      alpha: 0.0000,
-      details: { sample_size_days: 252, annualized_volatility: 0.145 }
-    },
-    {
-      id: 'ar4',
-      asset_id: '4',
-      ticker: 'XAU',
-      timestamp: new Date().toISOString(),
-      var_95: 0.01850,
-      var_99: 0.02800,
-      expected_shortfall_95: 0.02400,
-      expected_shortfall_99: 0.03500,
-      max_drawdown: 0.12400,
-      sharpe_ratio: 1.42,
-      sortino_ratio: 1.72,
-      calmar_ratio: 1.35,
-      beta: 0.24,
-      alpha: 0.0045,
-      details: { sample_size_days: 252, annualized_volatility: 0.182 }
-    }
-  ];
+  const generateMockRisk = (symbol: string): AssetRiskResponse => {
+    const vals = {
+      'BTCUSDT': { var_95: 0.048, cvar_95: 0.062, vol: 0.45, dd: 0.224, score: 72, level: 'High' },
+      'ETHUSDT': { var_95: 0.054, cvar_95: 0.071, vol: 0.525, dd: 0.285, score: 85, level: 'Extreme' },
+      'SPX': { var_95: 0.0125, cvar_95: 0.0165, vol: 0.145, dd: 0.085, score: 25, level: 'Low' },
+      'XAU': { var_95: 0.0185, cvar_95: 0.024, vol: 0.182, dd: 0.124, score: 38, level: 'Medium' }
+    }[symbol] || { var_95: 0.02, cvar_95: 0.03, vol: 0.20, dd: 0.15, score: 50, level: 'Medium' };
+
+    return {
+      symbol,
+      var_95: vals.var_95,
+      cvar_95: vals.cvar_95,
+      volatility: vals.vol,
+      drawdown: vals.dd,
+      risk_score: vals.score,
+      risk_level: vals.level,
+      stress_test_summary: [],
+      plain_language_explanation: {
+        summary: `Risk is ${vals.level} because volatility is above normal and worst-case simulated losses are wider than usual.`,
+        warning: 'High risk assets present substantial downside path dispersion.',
+        reason: 'Parameters based on rolling 252-day return variance.'
+      },
+      data_mode: 'demo'
+    };
+  };
 
   const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // 1. Load Portfolio Risk
-      let fetchedPortfolio: PortfolioRiskMetrics | null = null;
-      try {
-        fetchedPortfolio = await api.getLatestPortfolioRisk();
-      } catch {
-        fetchedPortfolio = mockPortfolioRisk;
-      }
-      setPortfolioRisk(fetchedPortfolio || mockPortfolioRisk);
+      const projMap: Record<string, AssetProjectionResult> = {};
+      const riskMap: Record<string, AssetRiskResponse> = {};
 
-      // 2. Load Stress Tests
-      let fetchedStress: StressTestSummary | null = null;
-      try {
-        fetchedStress = await api.getStressTestSummary();
-      } catch {
-        fetchedStress = mockStressTest;
-      }
-      setStressTest(fetchedStress || mockStressTest);
+      for (const s of symbols) {
+        try {
+          projMap[s] = await resultsApi.getAssetProjection(s);
+        } catch {
+          projMap[s] = generateMockProjection(s);
+        }
 
-      // 3. Load Asset Risks
-      let fetchedAssets: AssetRiskMetrics[] = [];
-      try {
-        fetchedAssets = await api.getAssetsRiskMetrics();
-      } catch {
-        fetchedAssets = mockAssetRisk;
+        try {
+          riskMap[s] = await resultsApi.getAssetRisk(s);
+        } catch {
+          riskMap[s] = generateMockRisk(s);
+        }
       }
-      if (!fetchedAssets || fetchedAssets.length === 0) {
-        fetchedAssets = mockAssetRisk;
-      }
-      setAssetRisk(fetchedAssets);
 
+      setAllProjections(projMap);
+      setAllRisks(riskMap);
     } catch (err: any) {
-      console.error('Error fetching risk reports', err);
-      setError(err.message || 'Failed to sync risk matrices');
+      console.error("Error loading risk evaluation engine details", err);
+      setError(err.message || "Failed to query risk parameters from database.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleRecalculateRisk = async () => {
-    try {
-      setEvaluating(true);
-      setEvalMessage(null);
-      const res = await api.triggerRiskEvaluation();
-      setEvalMessage(res.detail || 'Portfolio variance matrices and Value at Risk levels successfully updated.');
-      setTimeout(() => {
-        setEvalMessage(null);
-        loadData();
-      }, 3000);
-    } catch (err: any) {
-      setError(err.message || 'Failed to recalculate risk reports.');
-    } finally {
-      setEvaluating(false);
     }
   };
 
@@ -200,411 +154,330 @@ export default function PortfolioRisk({ theme = 'light' }: PortfolioRiskProps) {
     loadData();
   }, []);
 
-  const getCorrelationMatrixData = (): any[] => {
-    const dataObj = portfolioRisk || mockPortfolioRisk;
-    const assets = Object.keys(dataObj.correlation_matrix);
-    const zData: number[][] = [];
-    
-    for (const a1 of assets) {
-      const row = [];
-      for (const a2 of assets) {
-        row.push(dataObj.correlation_matrix[a1][a2]);
-      }
-      zData.push(row);
+  const getRiskBadgeColor = (level: string) => {
+    switch (level.toUpperCase()) {
+      case 'EXTREME':
+        return 'text-rose-700 bg-rose-50 border-rose-200 dark:text-rose-400 dark:bg-rose-950/20 dark:border-rose-900/30';
+      case 'HIGH':
+        return 'text-orange-700 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-950/20 dark:border-orange-900/30';
+      case 'MEDIUM':
+        return 'text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-950/20 dark:border-amber-900/30';
+      case 'LOW':
+      default:
+        return 'text-teal-750 bg-teal-50 border-teal-200 dark:text-teal-400 dark:bg-teal-950/20 dark:border-teal-900/30';
     }
+  };
+
+  // Compile stress scenarios for selected asset
+  const getStressScenarios = (symbol: string) => {
+    const risk = allRisks[symbol] || generateMockRisk(symbol);
+    const spot = allProjections[symbol]?.latest_price || 100.0;
 
     return [
       {
-        x: assets,
-        y: assets,
-        z: zData,
-        type: 'heatmap',
-        colorscale: 'RdBu',
-        reversescale: true,
-        zmin: -1.0,
-        zmax: 1.0,
-        showscale: true,
-        colorbar: {
-          tickfont: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 9 }
-        }
+        scenario_name: 'Market Shock Scenario',
+        estimated_loss: `-${(risk.var_95 * 8 * 100).toFixed(1)}%`,
+        projected_price: `$${(spot * (1 - risk.var_95 * 8)).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+        explanation: 'Simulates a systemic asset crash mirroring a historical 2008 Financial Crisis shock (-40% equity market drop).'
+      },
+      {
+        scenario_name: 'High Volatility Scenario',
+        estimated_loss: `-${(risk.var_95 * 2 * 100).toFixed(1)}%`,
+        projected_price: `$${(spot * (1 - risk.var_95 * 2)).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+        explanation: 'Simulates double the standard volatility dispersion, tracking a rapid market panic regime shift.'
+      },
+      {
+        scenario_name: 'Downside Move Scenario',
+        estimated_loss: `-${(risk.var_95 * 100).toFixed(1)}%`,
+        projected_price: `$${(spot * (1 - risk.var_95)).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+        explanation: 'Estimates the 1-session Value at Risk limit expected on a bad day with 95% statistical confidence.'
       }
     ];
   };
 
-  const getStressTestData = (): any[] => {
-    const dataObj = stressTest || mockStressTest;
-    const labels = dataObj.scenarios.map(s => s.scenario_name.replace(/_/g, ' '));
-    const values = dataObj.scenarios.map(s => s.portfolio_return_shock * 100.0);
-
-    return [
-      {
-        x: labels,
-        y: values,
-        type: 'bar',
-        marker: {
-          color: values.map(v => '#BE123C')
-        }
-      }
-    ];
-  };
+  const selectedRisk = allRisks[selectedTicker] || generateMockRisk(selectedTicker);
+  const selectedProj = allProjections[selectedTicker] || generateMockProjection(selectedTicker);
 
   return (
-    <div className={`space-y-6 min-h-screen p-6 rounded-2xl border transition-all duration-300 ${
+    <div className={`space-y-8 min-h-screen p-6 rounded-2xl border transition-all duration-300 ${
       theme === 'light' 
         ? 'bg-slate-50 text-slate-800 border-slate-200' 
         : 'bg-[#151D30]/20 text-slate-100 border-[#1F2942]/60'
     }`}>
-      {/* Risk Metrics Header Segment */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* Page Header */}
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-5 ${
+        theme === 'light' ? 'border-slate-200' : 'border-[#1F2942]/60'
+      }`}>
         <div>
-          <h2 className={`text-xl font-bold tracking-wider uppercase transition-colors duration-300 ${
+          <h1 className={`text-3xl font-black tracking-tight ${
             theme === 'light' ? 'text-slate-900' : 'text-slate-100'
-          }`}>Portfolio Risks & Shocks</h2>
-          <p className={`text-xs mt-1 transition-colors duration-300 ${
-            theme === 'light' ? 'text-slate-500' : 'text-slate-400'
-          }`}>Downside loss thresholds, asset relationships, and simulated macro stress scenarios</p>
+          }`}>
+            Risk Analysis
+          </h1>
+          <p className={`text-sm mt-2 font-medium leading-relaxed max-w-3xl ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>
+            Measure downside risk using VaR, CVaR, volatility, drawdown, and stress scenarios.
+          </p>
         </div>
-
-        <button
-          onClick={handleRecalculateRisk}
-          disabled={evaluating}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase border transition-all duration-300 ${
-            evaluating 
-              ? 'bg-slate-100 text-slate-450 border-slate-200 cursor-not-allowed' 
-              : theme === 'light'
-                ? 'bg-white text-indigo-600 border-indigo-200 hover:bg-indigo-50 active:scale-95 shadow-sm'
-                : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/20 active:scale-95 shadow-[0_0_15px_rgba(99,102,241,0.1)]'
-          }`}
-        >
-          <RefreshCw className={`w-4 h-4 ${evaluating ? 'animate-spin' : ''}`} />
-          {evaluating ? 'Recalculating...' : 'Recalculate Risk'}
-        </button>
       </div>
 
-      {evalMessage && (
-        <div className="flex items-center gap-2.5 p-4 rounded-lg bg-emerald-50 border border-emerald-250 text-emerald-800 text-xs font-mono dark:bg-emerald-950/30 dark:border-emerald-900/40 dark:text-emerald-400">
-          <CheckCircle className="w-4 h-4 flex-shrink-0" />
-          <span>{evalMessage}</span>
-        </div>
-      )}
+      {/* 1. Asset Risk Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {symbols.map(s => {
+          const risk = allRisks[s] || generateMockRisk(s);
+          const proj = allProjections[s] || generateMockProjection(s);
+          const p7d = proj.horizons.find(h => h.horizon_label === '7D');
+          const lossProb = p7d ? `${(p7d.probability_of_loss * 100).toFixed(0)}%` : '--%';
+          
+          const isSelected = selectedTicker === s;
 
-      {loading ? (
-        <div className="w-full h-40 flex items-center justify-center bg-slate-100/50 rounded-xl border border-slate-200/50 animate-pulse">
-          <div className="text-slate-400 font-mono text-xs flex items-center gap-2">
-            <RefreshCw className="w-4 h-4 animate-spin" /> Consolidating Risk Audits...
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Main Portfolio Indicators Card Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* Aggregate Downside */}
-            <div className={`rounded-xl p-6 border transition-colors duration-300 ${
-              theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'glass-panel border-[#1F2942] bg-[#151D30]/30 text-slate-100'
-            }`}>
-              <h4 className={`font-mono text-[10px] uppercase tracking-wider mb-3.5 flex items-center gap-1.5 justify-between ${
-                theme === 'light' ? 'text-slate-500 font-bold' : 'text-slate-500'
-              }`}>
-                <span>Portfolio Downside Risk</span>
-                <span title="Value at Risk (Maximum expected drop on a bad day) and average expected loss in a market crash scenario.">
-                  <HelpCircle className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 cursor-help" />
-                </span>
-              </h4>
-              <div className={`space-y-2.5 font-mono text-xs ${theme === 'light' ? 'text-slate-700' : 'text-slate-400'}`}>
-                <div className={`flex justify-between border-b pb-1.5 ${theme === 'light' ? 'border-slate-100' : 'border-[#1F2942]/40'}`}>
-                  <span>{copy.glossary.var.name} (95%):</span>
-                  <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-slate-100'}`}>
-                    {((portfolioRisk?.var_95 || 0.0) * 100.0).toFixed(2)}%
+          return (
+            <button
+              key={s}
+              onClick={() => setSelectedTicker(s)}
+              className={`text-left p-5 rounded-xl border relative flex flex-col justify-between shadow-sm cursor-pointer transition-all duration-300 ${
+                isSelected
+                  ? theme === 'light'
+                    ? 'bg-white border-indigo-500 ring-2 ring-indigo-550/10 scale-[1.01] shadow-md'
+                    : 'bg-[#151D30]/40 border-indigo-500 ring-2 ring-indigo-400/20 scale-[1.01] shadow-md'
+                  : theme === 'light'
+                    ? 'bg-white border-slate-200 hover:border-slate-350'
+                    : 'glass-panel border-[#1F2942] bg-[#151D30]/20 hover:border-[#1F2942]'
+              }`}
+            >
+              <div className="w-full">
+                <div className="flex justify-between items-center mb-2">
+                  <span className={`text-[10px] font-mono tracking-wider font-bold ${
+                    theme === 'light' ? 'text-slate-455' : 'text-slate-500'
+                  }`}>{s}</span>
+                  <span className={`text-[9px] uppercase font-bold tracking-wide px-2 py-0.5 rounded border ${getRiskBadgeColor(risk.risk_level)}`}>
+                    {risk.risk_level}
                   </span>
                 </div>
-                <div className={`flex justify-between border-b pb-1.5 ${theme === 'light' ? 'border-slate-100' : 'border-[#1F2942]/40'}`}>
-                  <span>Extreme Downside Threshold (VaR 99%):</span>
-                  <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-slate-100'}`}>
-                    {((portfolioRisk?.var_99 || 0.0) * 100.0).toFixed(2)}%
-                  </span>
-                </div>
-                <div className={`flex justify-between border-b pb-1.5 ${theme === 'light' ? 'border-slate-100' : 'border-[#1F2942]/40'}`}>
-                  <span>{copy.glossary.cvar.name} (95%):</span>
-                  <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-slate-100'}`}>
-                    {((portfolioRisk?.expected_shortfall_95 || 0.0) * 100.0).toFixed(2)}%
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Extreme Crash Loss (CVaR 99%):</span>
-                  <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-slate-100'}`}>
-                    {((portfolioRisk?.expected_shortfall_99 || 0.0) * 100.0).toFixed(2)}%
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            {/* Performance Ratios */}
-            <div className={`rounded-xl p-6 border transition-colors duration-300 ${
-              theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'glass-panel border-[#1F2942] bg-[#151D30]/30 text-slate-100'
-            }`}>
-              <h4 className={`font-mono text-[10px] uppercase tracking-wider mb-3.5 flex items-center gap-1.5 justify-between ${
-                theme === 'light' ? 'text-slate-500 font-bold' : 'text-slate-500'
-              }`}>
-                <span>Risk-Adjusted return (Sharpe)</span>
-                <span title="Scores measuring return relative to risk. Higher Sharpe and Sortino ratios indicate better risk-adjusted returns.">
-                  <HelpCircle className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 cursor-help" />
-                </span>
-              </h4>
-              <div className={`space-y-2.5 font-mono text-xs ${theme === 'light' ? 'text-slate-700' : 'text-slate-400'}`}>
-                <div className={`flex justify-between border-b pb-1.5 ${theme === 'light' ? 'border-slate-100' : 'border-[#1F2942]/40'}`}>
-                  <span>Sharpe Ratio (Return/Risk):</span>
-                  <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-emerald-400'}`}>
-                    {portfolioRisk?.sharpe_ratio.toFixed(2)}
-                  </span>
-                </div>
-                <div className={`flex justify-between border-b pb-1.5 ${theme === 'light' ? 'border-slate-100' : 'border-[#1F2942]/40'}`}>
-                  <span>Sortino Ratio (Downside Risk):</span>
-                  <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-emerald-400'}`}>
-                    {portfolioRisk?.sortino_ratio.toFixed(2)}
-                  </span>
-                </div>
-                <div className={`flex justify-between border-b pb-1.5 ${theme === 'light' ? 'border-slate-100' : 'border-[#1F2942]/40'}`}>
-                  <span>Calmar Ratio (Drawdown Risk):</span>
-                  <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-emerald-450'}`}>
-                    {portfolioRisk?.calmar_ratio.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{copy.glossary.drawdown.name}:</span>
-                  <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-rose-400'}`}>
-                    {((portfolioRisk?.max_drawdown || 0.0) * 100.0).toFixed(2)}%
-                  </span>
-                </div>
-              </div>
-            </div>
+                <h3 className={`text-base font-bold ${theme === 'light' ? 'text-slate-900' : 'text-slate-200'}`}>
+                  {assetNames[s as keyof typeof assetNames] || s}
+                </h3>
 
-            {/* Allocations & Beta sensitivity */}
-            <div className={`rounded-xl p-6 border flex flex-col justify-between transition-colors duration-300 ${
-              theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'glass-panel border-[#1F2942] bg-[#151D30]/30 text-slate-100'
-            }`}>
-              <div>
-                <h4 className={`font-mono text-[10px] uppercase tracking-wider mb-3.5 flex items-center gap-1.5 justify-between ${
-                  theme === 'light' ? 'text-slate-500 font-bold' : 'text-slate-500'
-                }`}>
-                  <span>Sensitivity & Outperformance</span>
-                  <span title="Market Sensitivity measures volatility relative to the stock market index. Outperformance measures returns above risk assumptions.">
-                    <HelpCircle className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 cursor-help" />
-                  </span>
-                </h4>
-                <div className={`space-y-2.5 font-mono text-xs ${theme === 'light' ? 'text-slate-700' : 'text-slate-400'}`}>
-                  <div className={`flex justify-between border-b pb-1.5 ${theme === 'light' ? 'border-slate-100' : 'border-[#1F2942]/40'}`}>
-                    <span>Market Sensitivity (Beta):</span>
-                    <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-slate-100'}`}>
-                      {portfolioRisk?.beta.toFixed(2)}x
-                    </span>
+                <div className="mt-3.5 space-y-2 font-mono text-xs text-slate-500">
+                  <div className="flex justify-between">
+                    <span>Risk Score:</span>
+                    <strong className={theme === 'light' ? 'text-slate-900' : 'text-slate-200'}>
+                      {risk.risk_score.toFixed(0)}/100
+                    </strong>
                   </div>
                   <div className="flex justify-between">
-                    <span>Extra Return (Alpha):</span>
-                    <span className={`font-bold ${theme === 'light' ? 'text-slate-900' : 'text-emerald-400'}`}>
-                      {portfolioRisk?.alpha.toFixed(5)}
-                    </span>
+                    <span>Loss Prob (7D):</span>
+                    <strong className={theme === 'light' ? 'text-slate-900' : 'text-slate-200'}>
+                      {lossProb}
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>VaR 95%:</span>
+                    <strong className="text-orange-500">
+                      -{(risk.var_95 * 100).toFixed(2)}%
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>CVaR 95%:</span>
+                    <strong className="text-rose-500">
+                      -{(risk.cvar_95 * 100).toFixed(2)}%
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Volatility:</span>
+                    <strong className={theme === 'light' ? 'text-slate-950 font-bold' : 'text-slate-100'}>
+                      {(risk.volatility * 100).toFixed(1)}%
+                    </strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Max Drawdown:</span>
+                    <strong className={theme === 'light' ? 'text-slate-950 font-bold' : 'text-slate-100'}>
+                      -{(risk.drawdown * 100).toFixed(1)}%
+                    </strong>
                   </div>
                 </div>
               </div>
-              
-              <div className={`border-t pt-3 mt-4 text-[9px] font-mono uppercase flex flex-wrap gap-2.5 ${
-                theme === 'light' ? 'border-slate-100 text-slate-400' : 'border-[#1F2942]/40 text-slate-500'
-              }`}>
-                {Object.entries(portfolioRisk?.details.weights_allocated || mockPortfolioRisk.details.weights_allocated).map(([ticker, w]) => (
-                  <span key={ticker}>{ticker}: <strong className={theme === 'light' ? 'text-slate-800 font-bold' : 'text-slate-350'}>{(w as number * 100).toFixed(0)}%</strong></span>
-                ))}
+
+              {isSelected && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-12 bg-indigo-500 rounded-r" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 2. Simple Risk Explanation */}
+      {selectedRisk && (
+        <div className={`p-5 rounded-xl text-sm flex items-start gap-4 shadow-sm border transition-colors duration-300 ${
+          theme === 'light' 
+            ? 'bg-orange-50/50 border-orange-100 text-slate-700' 
+            : 'bg-orange-500/5 border-orange-500/10 text-slate-350'
+        }`}>
+          <ShieldAlert className={`w-5 h-5 flex-shrink-0 mt-0.5 ${theme === 'light' ? 'text-orange-500' : 'text-orange-400'}`} />
+          <div className="space-y-1">
+            <strong className={`font-semibold text-[13px] uppercase tracking-wider block ${theme === 'light' ? 'text-orange-850' : 'text-orange-400'}`}>
+              Simple Risk Read — {assetNames[selectedTicker as keyof typeof assetNames] || selectedTicker}
+            </strong>
+            <p className="leading-relaxed font-semibold italic text-slate-700 dark:text-slate-300">
+              "Risk is {selectedRisk.risk_level} because volatility is {(selectedRisk.volatility * 100).toFixed(1)}% (above normal baseline) and worst-case simulated losses (CVaR at {(selectedRisk.cvar_95 * 100).toFixed(1)}%) are wider than usual."
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* 3. Stress Testing Section (col-span-7) */}
+        <div className={`lg:col-span-7 rounded-xl p-5.5 border flex flex-col justify-between transition-all duration-300 ${
+          theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'glass-panel border-[#1F2942] bg-[#151D30]/30 text-slate-100'
+        }`}>
+          <div>
+            <h3 className={`text-base font-bold flex items-center gap-2 ${theme === 'light' ? 'text-slate-950' : 'text-slate-100'}`}>
+              <TrendingDown className="w-5 h-5 text-indigo-500" />
+              Stress Testing Scenarios
+            </h3>
+            <p className={`text-xs mt-0.5 ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-500'}`}>
+              Projected impact on {assetNames[selectedTicker as keyof typeof assetNames] || selectedTicker} under historical and volatility shocks.
+            </p>
+
+            <div className="mt-5 space-y-4">
+              {getStressScenarios(selectedTicker).map((scenario, idx) => (
+                <div 
+                  key={idx} 
+                  className={`p-4 rounded-xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-3 ${
+                    theme === 'light' ? 'bg-slate-50 border-slate-150' : 'bg-[#0B0F19]/40 border-[#1F2942]/40'
+                  }`}
+                >
+                  <div className="space-y-1 max-w-md">
+                    <strong className={`text-xs block font-bold uppercase tracking-wider ${theme === 'light' ? 'text-slate-850' : 'text-slate-200'}`}>
+                      {scenario.scenario_name}
+                    </strong>
+                    <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-550' : 'text-slate-450'}`}>
+                      {scenario.explanation}
+                    </p>
+                  </div>
+
+                  <div className="flex md:flex-col items-baseline md:items-end gap-2 md:gap-0.5">
+                    <span className="text-sm font-bold text-rose-500 font-mono">
+                      {scenario.estimated_loss} Loss
+                    </span>
+                    <span className="text-[10px] font-bold font-mono text-slate-400">
+                      Target: {scenario.projected_price}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="border-t pt-3 mt-4 text-[10px] font-medium leading-relaxed text-slate-450">
+            Shocks represent theoretical changes based on historical covariance scales and tail volatility bounds.
+          </div>
+        </div>
+
+        {/* 4. VaR/CVaR Explanation (col-span-5) */}
+        <div className={`lg:col-span-5 rounded-xl p-5.5 border flex flex-col justify-between transition-all duration-300 ${
+          theme === 'light' ? 'bg-white border-slate-200 shadow-sm text-slate-800' : 'glass-panel border-[#1F2942] bg-[#151D30]/30 text-slate-100'
+        }`}>
+          <div>
+            <h3 className={`text-base font-bold flex items-center gap-2 ${theme === 'light' ? 'text-slate-950' : 'text-slate-100'}`}>
+              <HelpCircle className="w-5 h-5 text-indigo-500" />
+              Risk Glossary & Thresholds
+            </h3>
+            <p className={`text-xs mt-0.5 ${theme === 'light' ? 'text-slate-655 font-medium' : 'text-slate-500'}`}>
+              Understanding Value at Risk and tail dispersion.
+            </p>
+
+            <div className="mt-6 space-y-5 text-xs">
+              <div className="space-y-1.5">
+                <h4 className={`font-bold font-sans uppercase tracking-wider ${
+                  theme === 'light' ? 'text-indigo-900 font-bold' : 'text-indigo-400'
+                }`}>
+                  Value at Risk (VaR 95%)
+                </h4>
+                <p className={`leading-relaxed font-medium ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>
+                  VaR estimates the loss threshold in bad cases. For example, a 95% 1-day VaR of 4.8% means there is a 5% chance the asset drops by more than 4.8% in a single market session.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <h4 className={`font-bold font-sans uppercase tracking-wider ${
+                  theme === 'light' ? 'text-indigo-900 font-bold' : 'text-indigo-400'
+                }`}>
+                  Conditional VaR (CVaR 95%)
+                </h4>
+                <p className={`leading-relaxed font-medium ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>
+                  CVaR estimates the average loss inside the worst-case zone. When the VaR threshold is breached, CVaR tells you the average severity of the crash outcomes (the worst 5% of simulated paths).
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Asset-level Risk Profiles Grid Table */}
-          <div className={`rounded-xl overflow-hidden border transition-colors duration-300 ${
-            theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942]'
-          }`}>
-            <div className={`p-4 border-b flex items-center gap-2 text-xs font-bold font-mono tracking-wider ${
-              theme === 'light' 
-                ? 'border-slate-100 bg-slate-50 text-slate-800' 
-                : 'border-[#1F2942]/60 bg-[#151D30]/50 text-slate-200'
-            }`}>
-              <ShieldAlert className="w-4 h-4 text-indigo-500" />
-              HISTORICAL RISK & PERFORMANCE METRICS BY ASSET
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left font-mono text-xs border-collapse">
-                <thead>
-                  <tr className={`uppercase text-[9px] tracking-wider border-b ${
-                    theme === 'light' 
-                      ? 'bg-slate-50/50 text-slate-400 border-slate-100' 
-                      : 'bg-[#0B0F19]/60 border-[#1F2942]/60 text-slate-500'
-                  }`}>
-                    <th className="py-3.5 px-6">Asset</th>
-                    <th className="py-3.5 px-6">Daily Downside (VaR)</th>
-                    <th className="py-3.5 px-6">Severe Downside (VaR 99%)</th>
-                    <th className="py-3.5 px-6">Average Crash Loss (CVaR)</th>
-                    <th className="py-3.5 px-6">Worst Drop (Drawdown)</th>
-                    <th className="py-3.5 px-6">Return / Risk (Sharpe)</th>
-                    <th className="py-3.5 px-6">Market Sensitivity (Beta)</th>
-                    <th className="py-3.5 px-6">Extra Return (Alpha)</th>
-                  </tr>
-                </thead>
-                <tbody className={`divide-y ${
-                  theme === 'light' 
-                    ? 'divide-slate-100 text-slate-700' 
-                    : 'divide-[#1F2942]/40 text-slate-300'
-                }`}>
-                  {assetRisk.map((row) => (
-                    <tr key={row.id} className={`transition-colors duration-200 ${
-                      theme === 'light' ? 'hover:bg-slate-50/30' : 'hover:bg-[#151D30]/20'
-                    }`}>
-                      <td className={`py-3.5 px-6 font-bold ${theme === 'light' ? 'text-slate-900' : 'text-slate-100'}`}>{row.ticker}</td>
-                      <td className="py-3.5 px-6">{(row.var_95 * 100.0).toFixed(2)}%</td>
-                      <td className="py-3.5 px-6">{(row.var_99 * 100.0).toFixed(2)}%</td>
-                      <td className={`py-3.5 px-6 font-bold ${theme === 'light' ? 'text-slate-900' : 'text-rose-400'}`}>
-                        {(row.expected_shortfall_95 * 100.0).toFixed(2)}%
-                      </td>
-                      <td className={`py-3.5 px-6 font-bold ${theme === 'light' ? 'text-slate-900' : 'text-amber-400'}`}>
-                        {(row.max_drawdown * 100.0).toFixed(1)}%
-                      </td>
-                      <td className={`py-3.5 px-6 font-bold ${theme === 'light' ? 'text-slate-900 font-bold' : 'text-emerald-400 font-bold'}`}>
-                        {row.sharpe_ratio.toFixed(2)}
-                      </td>
-                      <td className="py-3.5 px-6">{row.beta.toFixed(2)}x</td>
-                      <td className={`py-3.5 px-6 font-bold ${theme === 'light' ? 'text-slate-900' : 'text-emerald-400'}`}>
-                        {(row.alpha * 100).toFixed(3)}%
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Heatmaps and Shocks splits */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            
-            {/* Correlation Matrix Heatmap */}
-            <div className={`rounded-xl p-4 border h-[340px] transition-colors duration-300 ${
-              theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
-            }`}>
-              <h4 className={`text-xs font-bold font-mono mb-2 uppercase flex items-center gap-1.5 justify-between ${
-                theme === 'light' ? 'text-slate-700' : 'text-slate-400'
-              }`}>
-                <span className="flex items-center gap-1.5">
-                  <BarChart2 className="w-4 h-4 text-indigo-500" />
-                  Asset Price Relationships Heatmap
-                </span>
-                <span title="Correlation values. 1.0 means assets move in perfect lockstep; 0.0 means completely unrelated; negative values indicate assets diversify each other.">
-                  <HelpCircle className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 cursor-help" />
-                </span>
-              </h4>
-              <Plot
-                data={getCorrelationMatrixData()}
-                layout={{
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  plot_bgcolor: 'rgba(0,0,0,0)',
-                  xaxis: { 
-                    tickfont: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 9 }, 
-                    linecolor: theme === 'light' ? '#CBD5E1' : '#1F2942' 
-                  },
-                  yaxis: { 
-                    tickfont: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 9 }, 
-                    linecolor: theme === 'light' ? '#CBD5E1' : '#1F2942' 
-                  },
-                  margin: { l: 60, r: 10, t: 15, b: 35 }
-                }}
-                config={{ responsive: true, displayModeBar: false }}
-                className="w-full h-full"
-              />
-            </div>
-
-            {/* Macro Stress testing shocks chart */}
-            <div className={`rounded-xl p-4 border h-[340px] transition-colors duration-300 ${
-              theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
-            }`}>
-              <h4 className={`text-xs font-bold font-mono mb-2 uppercase flex items-center gap-1.5 justify-between ${
-                theme === 'light' ? 'text-slate-700' : 'text-slate-400'
-              }`}>
-                <span className="flex items-center gap-1.5">
-                  <ThermometerSnowflake className="w-4 h-4 text-indigo-500" />
-                  Simulation Under Historical Crashes
-                </span>
-                <span title="Percentage return shock to the portfolio under historical crisis events.">
-                  <HelpCircle className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 cursor-help" />
-                </span>
-              </h4>
-              <Plot
-                data={getStressTestData()}
-                layout={{
-                  paper_bgcolor: 'rgba(0,0,0,0)',
-                  plot_bgcolor: 'rgba(0,0,0,0)',
-                  xaxis: { 
-                    gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : '#1F2942/20', 
-                    tickfont: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 8 }, 
-                    linecolor: theme === 'light' ? '#CBD5E1' : '#1F2942' 
-                  },
-                  yaxis: { 
-                    gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : '#1F2942/20', 
-                    tickfont: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 9 } 
-                  },
-                  margin: { l: 30, r: 10, t: 15, b: 50 },
-                  showlegend: false
-                }}
-                config={{ responsive: true, displayModeBar: false }}
-                className="w-full h-full"
-              />
-            </div>
-          </div>
-
-          {/* USD stress impact tables */}
-          <div className={`rounded-xl overflow-hidden border transition-colors duration-300 ${
-            theme === 'light' ? 'bg-white border-slate-200 shadow-sm font-mono text-xs' : 'glass-panel border-[#1F2942] font-mono text-xs'
-          }`}>
-            <div className={`p-4 border-b flex items-center gap-2 text-xs font-bold font-mono tracking-wider ${
-              theme === 'light' 
-                ? 'border-slate-100 bg-slate-50 text-slate-800' 
-                : 'border-[#1F2942]/60 bg-[#151D30]/50 text-slate-200'
-            }`}>
-              <ShieldAlert className="w-4 h-4 text-indigo-500" />
-              PORTFOLIO VALUE IMPACT IN SIMULATED CRASHES ($100K BASELINE)
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className={`uppercase text-[9px] tracking-wider border-b ${
-                    theme === 'light' 
-                      ? 'bg-slate-50/50 text-slate-400 border-slate-100' 
-                      : 'bg-[#0B0F19]/60 border-[#1F2942]/60 text-slate-500'
-                  }`}>
-                    <th className="py-3 px-6">Historical Crash Scenario</th>
-                    <th className="py-3 px-6">Index Drop (S&P 500)</th>
-                    <th className="py-3 px-6">Estimated Portfolio Return Shock</th>
-                    <th className="py-3 px-6">Estimated Dollar Loss Impact</th>
-                  </tr>
-                </thead>
-                <tbody className={`divide-y ${
-                  theme === 'light' 
-                    ? 'divide-slate-100 text-slate-700' 
-                    : 'divide-[#1F2942]/40 text-slate-300'
-                }`}>
-                  {(stressTest?.scenarios || mockStressTest.scenarios).map((sc) => (
-                    <tr key={sc.scenario_name} className={`transition-colors duration-200 ${
-                      theme === 'light' ? 'hover:bg-slate-50/30' : 'hover:bg-[#151D30]/20'
-                    }`}>
-                      <td className={`py-3 px-6 font-bold uppercase ${theme === 'light' ? 'text-slate-900 font-bold' : 'text-slate-100'}`}>{sc.scenario_name.replace(/_/g, ' ')}</td>
-                      <td className="py-3 px-6 font-bold">{(sc.spx_shock * 100.0).toFixed(1)}%</td>
-                      <td className="py-3 px-6 font-bold">{(sc.portfolio_return_shock * 100.0).toFixed(2)}%</td>
-                      <td className="py-3 px-6 font-black">-${Math.abs(sc.portfolio_usd_impact).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="border-t pt-3 mt-4 text-[9px] font-semibold text-slate-400 uppercase">
+            Model parameters updated daily against active feeds.
           </div>
         </div>
-      )}
+      </div>
+
+      {/* 5. Risk Comparison Matrix */}
+      <div className={`rounded-xl p-5.5 border transition-all duration-300 ${
+        theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
+      }`}>
+        <h3 className={`text-base font-bold mb-4 ${theme === 'light' ? 'text-slate-950' : 'text-slate-100'}`}>
+          Risk Comparison Matrix
+        </h3>
+
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left font-mono text-xs border-collapse">
+            <thead>
+              <tr className={`border-b text-[10px] uppercase font-sans font-bold tracking-wider ${
+                theme === 'light' ? 'border-slate-150 text-slate-500' : 'border-[#1F2942]/60 text-slate-455'
+              }`}>
+                <th className="pb-3 pl-2">Asset Symbol</th>
+                <th className="pb-3">Risk Score</th>
+                <th className="pb-3">Value at Risk (VaR)</th>
+                <th className="pb-3">Conditional VaR (CVaR)</th>
+                <th className="pb-3">Annualized Volatility</th>
+                <th className="pb-3">Worst Peak-to-Trough Drop</th>
+                <th className="pb-3 pr-2">Assigned Risk Level</th>
+              </tr>
+            </thead>
+            <tbody className={theme === 'light' ? 'text-slate-700' : 'text-slate-350'}>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-6 text-slate-400">
+                    Loading comparative risk matrices...
+                  </td>
+                </tr>
+              ) : (
+                symbols.map(s => {
+                  const risk = allRisks[s];
+                  if (!risk) return null;
+
+                  return (
+                    <tr 
+                      key={s} 
+                      className={`border-b hover:bg-slate-50/50 dark:hover:bg-[#1E293B]/20 transition-colors ${
+                        theme === 'light' ? 'border-slate-100' : 'border-[#1F2942]/30'
+                      }`}
+                    >
+                      <td className="py-3.5 pl-2 font-bold font-sans">{assetNames[s as keyof typeof assetNames] || s} ({s})</td>
+                      <td className="py-3.5 font-bold">{risk.risk_score.toFixed(0)}/100</td>
+                      <td className="py-3.5 font-bold text-orange-500">-{(risk.var_95 * 100).toFixed(2)}%</td>
+                      <td className="py-3.5 font-bold text-rose-500">-{(risk.cvar_95 * 100).toFixed(2)}%</td>
+                      <td className="py-3.5 font-bold">{(risk.volatility * 100).toFixed(1)}%</td>
+                      <td className="py-3.5 font-bold">-{(risk.drawdown * 100).toFixed(1)}%</td>
+                      <td className="py-3.5 pr-2 font-sans">
+                        <span className={`text-[9px] uppercase font-bold tracking-wide px-2 py-0.5 rounded border ${getRiskBadgeColor(risk.risk_level)}`}>
+                          {risk.risk_level}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

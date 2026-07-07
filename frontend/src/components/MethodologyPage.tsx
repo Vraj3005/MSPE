@@ -15,8 +15,10 @@ import {
   Server, 
   Layers, 
   FileSpreadsheet,
-  Rocket
+  Rocket,
+  HelpCircle
 } from 'lucide-react';
+import { copy } from '../content/copy';
 
 interface MethodologyPageProps {
   theme?: 'light' | 'dark';
@@ -284,6 +286,33 @@ export default function MethodologyPage({ theme = 'light' }: MethodologyPageProp
               </li>
             </ul>
           </div>
+        </div>
+      </div>
+
+      {/* Glossary Section */}
+      <div className={`rounded-xl p-5 shadow-sm space-y-4 border transition-all duration-300 ${
+        theme === 'light' ? 'bg-white border-slate-200' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
+      }`}>
+        <div className={`flex items-center gap-2 border-b pb-3 ${
+          theme === 'light' ? 'border-slate-100 text-slate-950' : 'border-[#1F2942]/40 text-slate-100'
+        }`}>
+          <HelpCircle className="w-5 h-5 text-indigo-500" />
+          <h3 className="text-sm font-bold uppercase">Dashboard Glossary</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {Object.entries(copy.glossary).map(([key, item]) => (
+            <div key={key} className="space-y-1">
+              <h4 className={`font-bold text-[11px] font-mono uppercase ${
+                theme === 'light' ? 'text-slate-900 font-bold' : 'text-slate-200'
+              }`}>
+                {item.name}
+              </h4>
+              <p className={`text-[11px] leading-relaxed ${theme === 'light' ? 'text-slate-600 font-medium' : 'text-slate-400'}`}>
+                {item.definition}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

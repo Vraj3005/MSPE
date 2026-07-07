@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { api, BacktestResponse } from '../lib/api';
+import { api, BacktestResponse } from '../../lib/api';
 import { Play, TrendingUp, DollarSign, Activity, Percent, ShieldCheck, AlertTriangle, RefreshCw } from 'lucide-react';
 
 const Plot = dynamic(() => import('react-plotly.js'), {
