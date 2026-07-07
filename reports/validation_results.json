@@ -1,0 +1,1700 @@
+{
+  "generated_at": "2026-07-07T17:40:16.330949+00:00",
+  "data_mode": "demo",
+  "status": "ready",
+  "overall_conclusion": "MSPE outperformed baselines across most horizons for ETHUSDT, SPX, XAU. MSPE improved projection quality at select horizons for BTCUSDT (30D). Where MSPE does not beat baselines on point accuracy, it still provides structured risk analytics, bear/base/bull scenarios, and Monte Carlo-based range projections that simple price-following cannot offer.",
+  "assets": {
+    "BTCUSDT": {
+      "symbol": "BTCUSDT",
+      "asset_name": "Bitcoin / Tether USDT",
+      "horizons": {
+        "1D": {
+          "horizon_days": 1,
+          "horizon_label": "1D",
+          "best_model": "last_price_baseline",
+          "baseline_beaten": false,
+          "best_baseline_model": "last_price_baseline",
+          "best_baseline_score": 0.8171,
+          "best_model_score": 0.8171,
+          "improvement_over_baseline": 0.0,
+          "model_rankings": [
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.015757,
+              "rmse": 0.020188,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0478,
+              "calibration_score": 0.8171,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.015757,
+              "rmse": 0.020188,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0478,
+              "calibration_score": 0.8171,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.015828,
+              "rmse": 0.020013,
+              "directional_accuracy": 0.625,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0479,
+              "calibration_score": 0.8042,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.0158,
+              "rmse": 0.019635,
+              "directional_accuracy": 0.625,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0503,
+              "calibration_score": 0.8036,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.014976,
+              "rmse": 0.020085,
+              "directional_accuracy": 0.4375,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0456,
+              "calibration_score": 0.7712,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.015768,
+              "rmse": 0.020007,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0478,
+              "calibration_score": 0.717,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.018414,
+              "rmse": 0.025728,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.6875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0474,
+              "calibration_score": 0.5684,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.016018,
+              "rmse": 0.020221,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0758,
+              "calibration_score": 0.37,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "For 1D projections, baseline methods performed best for BTCUSDT. However, the projection range still captured actual prices 81% of the time. MSPE is more useful for risk range estimation than exact direction at this horizon."
+        },
+        "3D": {
+          "horizon_days": 3,
+          "horizon_label": "3D",
+          "best_model": "rolling_mean_baseline",
+          "baseline_beaten": false,
+          "best_baseline_model": "rolling_mean_baseline",
+          "best_baseline_score": 0.6395,
+          "best_model_score": 0.6395,
+          "improvement_over_baseline": 0.0,
+          "model_rankings": [
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.019782,
+              "rmse": 0.03006,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0833,
+              "calibration_score": 0.6395,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.019879,
+              "rmse": 0.03092,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0828,
+              "calibration_score": 0.6267,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.019879,
+              "rmse": 0.03092,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0828,
+              "calibration_score": 0.6267,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.034403,
+              "rmse": 0.048552,
+              "directional_accuracy": 0.4375,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0814,
+              "calibration_score": 0.5638,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.019128,
+              "rmse": 0.029715,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0875,
+              "calibration_score": 0.5159,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.018854,
+              "rmse": 0.028761,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0832,
+              "calibration_score": 0.5058,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.019339,
+              "rmse": 0.028976,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.131,
+              "calibration_score": 0.502,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.02189,
+              "rmse": 0.033236,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.079,
+              "calibration_score": 0.4699,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "For 3D projections, baseline methods performed best for BTCUSDT. However, the projection range still captured actual prices 88% of the time. MSPE is more useful for risk range estimation than exact direction at this horizon."
+        },
+        "7D": {
+          "horizon_days": 7,
+          "horizon_label": "7D",
+          "best_model": "last_price_baseline",
+          "baseline_beaten": false,
+          "best_baseline_model": "last_price_baseline",
+          "best_baseline_score": 0.7267,
+          "best_model_score": 0.7267,
+          "improvement_over_baseline": 0.0,
+          "model_rankings": [
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.038231,
+              "rmse": 0.048414,
+              "directional_accuracy": 0.75,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.1265,
+              "calibration_score": 0.7267,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.038231,
+              "rmse": 0.048414,
+              "directional_accuracy": 0.75,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.1265,
+              "calibration_score": 0.7267,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.035851,
+              "rmse": 0.051166,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.1281,
+              "calibration_score": 0.7205,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.038641,
+              "rmse": 0.048631,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.1279,
+              "calibration_score": 0.6751,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.033882,
+              "rmse": 0.048149,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.1345,
+              "calibration_score": 0.5995,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.03413,
+              "rmse": 0.046498,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.1207,
+              "calibration_score": 0.5654,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.051899,
+              "rmse": 0.077507,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.625,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.1226,
+              "calibration_score": 0.357,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.041797,
+              "rmse": 0.050699,
+              "directional_accuracy": 0.4375,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.1991,
+              "calibration_score": 0.2578,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "For 7D projections, baseline methods performed best for BTCUSDT. However, the projection range still captured actual prices 81% of the time. MSPE is more useful for risk range estimation than exact direction at this horizon."
+        },
+        "30D": {
+          "horizon_days": 30,
+          "horizon_label": "30D",
+          "best_model": "ewma",
+          "baseline_beaten": true,
+          "best_baseline_model": "rolling_mean_baseline",
+          "best_baseline_score": 0.5723,
+          "best_model_score": 0.5962,
+          "improvement_over_baseline": 0.0418,
+          "model_rankings": [
+            {
+              "model_name": "ewma",
+              "mae": 0.083529,
+              "rmse": 0.128044,
+              "directional_accuracy": 0.8824,
+              "interval_coverage": 0.8235,
+              "var_breach_rate": 0.0,
+              "band_width": 0.299,
+              "calibration_score": 0.5962,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.08556,
+              "rmse": 0.122972,
+              "directional_accuracy": 0.8824,
+              "interval_coverage": 0.7647,
+              "var_breach_rate": 0.0,
+              "band_width": 0.2925,
+              "calibration_score": 0.5723,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.091876,
+              "rmse": 0.106601,
+              "directional_accuracy": 0.8824,
+              "interval_coverage": 0.7647,
+              "var_breach_rate": 0.0,
+              "band_width": 0.2792,
+              "calibration_score": 0.5699,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.091876,
+              "rmse": 0.106601,
+              "directional_accuracy": 0.8824,
+              "interval_coverage": 0.7647,
+              "var_breach_rate": 0.0,
+              "band_width": 0.2792,
+              "calibration_score": 0.5699,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.091081,
+              "rmse": 0.128373,
+              "directional_accuracy": 0.5882,
+              "interval_coverage": 0.8824,
+              "var_breach_rate": 0.0,
+              "band_width": 0.2817,
+              "calibration_score": 0.4169,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.097162,
+              "rmse": 0.109793,
+              "directional_accuracy": 0.5294,
+              "interval_coverage": 0.7059,
+              "var_breach_rate": 0.0,
+              "band_width": 0.2683,
+              "calibration_score": 0.3801,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.109366,
+              "rmse": 0.138618,
+              "directional_accuracy": 0.3529,
+              "interval_coverage": 0.8824,
+              "var_breach_rate": 0.0,
+              "band_width": 0.4048,
+              "calibration_score": 0.3395,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.246288,
+              "rmse": 0.346694,
+              "directional_accuracy": 0.4118,
+              "interval_coverage": 0.3529,
+              "var_breach_rate": 0.0,
+              "band_width": 0.2531,
+              "calibration_score": 0.1086,
+              "num_validation_steps": 17
+            }
+          ],
+          "conclusion": "MSPE improved 30D projection quality for BTCUSDT by 4% over the best baseline. Range coverage: 82%."
+        }
+      },
+      "user_metrics": {
+        "projection_accuracy": "61.8%",
+        "projection_accuracy_value": 0.6177,
+        "range_reliability": "81%",
+        "range_reliability_value": 0.8125,
+        "risk_warning_quality": "Good",
+        "risk_warning_quality_value": 0.875,
+        "baseline_improvement": "Similar to baseline",
+        "baseline_improvement_value": 0.0,
+        "model_confidence": "High",
+        "model_confidence_value": 0.7267
+      },
+      "overall_conclusion": "MSPE showed improvement for BTCUSDT only at 30D. For other horizons, simpler models performed similarly or better. The engine is most useful for risk range estimation."
+    },
+    "ETHUSDT": {
+      "symbol": "ETHUSDT",
+      "asset_name": "Ethereum / Tether USDT",
+      "horizons": {
+        "1D": {
+          "horizon_days": 1,
+          "horizon_label": "1D",
+          "best_model": "xgboost",
+          "baseline_beaten": true,
+          "best_baseline_model": "last_price_baseline",
+          "best_baseline_score": 0.5797,
+          "best_model_score": 0.824,
+          "improvement_over_baseline": 0.4214,
+          "model_rankings": [
+            {
+              "model_name": "xgboost",
+              "mae": 0.007923,
+              "rmse": 0.01102,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0235,
+              "calibration_score": 0.824,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.007211,
+              "rmse": 0.009676,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0258,
+              "calibration_score": 0.7145,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.006615,
+              "rmse": 0.008474,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0264,
+              "calibration_score": 0.5799,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.006595,
+              "rmse": 0.008246,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0269,
+              "calibration_score": 0.5799,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.00667,
+              "rmse": 0.008664,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0261,
+              "calibration_score": 0.5797,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.00667,
+              "rmse": 0.008664,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0261,
+              "calibration_score": 0.5797,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.006671,
+              "rmse": 0.008611,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0412,
+              "calibration_score": 0.5752,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.006707,
+              "rmse": 0.008375,
+              "directional_accuracy": 0.4375,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0261,
+              "calibration_score": 0.567,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "MSPE's xgboost significantly outperformed baselines for ETHUSDT at the 1D horizon (+42% improvement). Range coverage: 81%, directional accuracy: 50%."
+        },
+        "3D": {
+          "horizon_days": 3,
+          "horizon_label": "3D",
+          "best_model": "arima",
+          "baseline_beaten": true,
+          "best_baseline_model": "rolling_mean_baseline",
+          "best_baseline_score": 0.7749,
+          "best_model_score": 0.8233,
+          "improvement_over_baseline": 0.0625,
+          "model_rankings": [
+            {
+              "model_name": "arima",
+              "mae": 0.014573,
+              "rmse": 0.017577,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.1875,
+              "band_width": 0.0446,
+              "calibration_score": 0.8233,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.013887,
+              "rmse": 0.016356,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0466,
+              "calibration_score": 0.7883,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.014162,
+              "rmse": 0.016533,
+              "directional_accuracy": 0.4375,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.1875,
+              "band_width": 0.0453,
+              "calibration_score": 0.7749,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.013681,
+              "rmse": 0.016096,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.1875,
+              "band_width": 0.0452,
+              "calibration_score": 0.7646,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.013681,
+              "rmse": 0.016096,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.1875,
+              "band_width": 0.0452,
+              "calibration_score": 0.7646,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.013705,
+              "rmse": 0.016159,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0456,
+              "calibration_score": 0.7644,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.019269,
+              "rmse": 0.023022,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.625,
+              "var_breach_rate": 0.1875,
+              "band_width": 0.0405,
+              "calibration_score": 0.4169,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.013909,
+              "rmse": 0.016477,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0715,
+              "calibration_score": 0.3807,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "MSPE improved 3D projection quality for ETHUSDT by 6% over the best baseline. Range coverage: 81%."
+        },
+        "7D": {
+          "horizon_days": 7,
+          "horizon_label": "7D",
+          "best_model": "rolling_mean_baseline",
+          "baseline_beaten": false,
+          "best_baseline_model": "rolling_mean_baseline",
+          "best_baseline_score": 0.7415,
+          "best_model_score": 0.7415,
+          "improvement_over_baseline": 0.0,
+          "model_rankings": [
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.020332,
+              "rmse": 0.024501,
+              "directional_accuracy": 0.4375,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0692,
+              "calibration_score": 0.7415,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.020428,
+              "rmse": 0.028065,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.068,
+              "calibration_score": 0.6665,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.018724,
+              "rmse": 0.02306,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0691,
+              "calibration_score": 0.6106,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.018724,
+              "rmse": 0.02306,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0691,
+              "calibration_score": 0.6106,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.019747,
+              "rmse": 0.023071,
+              "directional_accuracy": 0.25,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0694,
+              "calibration_score": 0.5813,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.017896,
+              "rmse": 0.021037,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0713,
+              "calibration_score": 0.3883,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.030465,
+              "rmse": 0.040732,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.4375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0612,
+              "calibration_score": 0.3448,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.019868,
+              "rmse": 0.023591,
+              "directional_accuracy": 0.25,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.1094,
+              "calibration_score": 0.3188,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "For 7D projections, baseline methods performed best for ETHUSDT. However, the projection range still captured actual prices 81% of the time. MSPE is more useful for risk range estimation than exact direction at this horizon."
+        },
+        "30D": {
+          "horizon_days": 30,
+          "horizon_label": "30D",
+          "best_model": "arima",
+          "baseline_beaten": true,
+          "best_baseline_model": "last_price_baseline",
+          "best_baseline_score": 0.5781,
+          "best_model_score": 0.639,
+          "improvement_over_baseline": 0.1053,
+          "model_rankings": [
+            {
+              "model_name": "arima",
+              "mae": 0.055023,
+              "rmse": 0.064809,
+              "directional_accuracy": 0.7647,
+              "interval_coverage": 0.7647,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.1439,
+              "calibration_score": 0.639,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.055588,
+              "rmse": 0.064784,
+              "directional_accuracy": 0.3529,
+              "interval_coverage": 0.8235,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.147,
+              "calibration_score": 0.5781,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.055588,
+              "rmse": 0.064784,
+              "directional_accuracy": 0.3529,
+              "interval_coverage": 0.8235,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.147,
+              "calibration_score": 0.5781,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.067201,
+              "rmse": 0.076322,
+              "directional_accuracy": 0.2941,
+              "interval_coverage": 0.9412,
+              "var_breach_rate": 0.0,
+              "band_width": 0.2331,
+              "calibration_score": 0.2848,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.083004,
+              "rmse": 0.102598,
+              "directional_accuracy": 0.4118,
+              "interval_coverage": 0.4118,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.1545,
+              "calibration_score": 0.193,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.069401,
+              "rmse": 0.077829,
+              "directional_accuracy": 0.2353,
+              "interval_coverage": 0.5294,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.1391,
+              "calibration_score": 0.1802,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.093787,
+              "rmse": 0.111441,
+              "directional_accuracy": 0.3529,
+              "interval_coverage": 0.2353,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.1492,
+              "calibration_score": 0.1718,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.105022,
+              "rmse": 0.139485,
+              "directional_accuracy": 0.3529,
+              "interval_coverage": 0.3529,
+              "var_breach_rate": 0.1176,
+              "band_width": 0.1285,
+              "calibration_score": 0.1688,
+              "num_validation_steps": 17
+            }
+          ],
+          "conclusion": "MSPE's arima significantly outperformed baselines for ETHUSDT at the 30D horizon (+11% improvement). Range coverage: 76%, directional accuracy: 76%."
+        }
+      },
+      "user_metrics": {
+        "projection_accuracy": "79.7%",
+        "projection_accuracy_value": 0.7967,
+        "range_reliability": "81%",
+        "range_reliability_value": 0.8125,
+        "risk_warning_quality": "Fair",
+        "risk_warning_quality_value": 0.5,
+        "baseline_improvement": "Similar to baseline",
+        "baseline_improvement_value": 0.0,
+        "model_confidence": "High",
+        "model_confidence_value": 0.7415
+      },
+      "overall_conclusion": "MSPE improved projection quality for ETHUSDT at 1D, 3D, 30D horizons, while baseline methods remained competitive at other horizons."
+    },
+    "SPX": {
+      "symbol": "SPX",
+      "asset_name": "S&P 500 Index",
+      "horizons": {
+        "1D": {
+          "horizon_days": 1,
+          "horizon_label": "1D",
+          "best_model": "xgboost",
+          "baseline_beaten": true,
+          "best_baseline_model": "rolling_mean_baseline",
+          "best_baseline_score": 0.556,
+          "best_model_score": 0.7442,
+          "improvement_over_baseline": 0.3385,
+          "model_rankings": [
+            {
+              "model_name": "xgboost",
+              "mae": 0.0026,
+              "rmse": 0.00292,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0103,
+              "calibration_score": 0.7442,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.00246,
+              "rmse": 0.00295,
+              "directional_accuracy": 0.3125,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0121,
+              "calibration_score": 0.5695,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.002601,
+              "rmse": 0.003188,
+              "directional_accuracy": 0.25,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0126,
+              "calibration_score": 0.556,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.002162,
+              "rmse": 0.002729,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0126,
+              "calibration_score": 0.521,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.002328,
+              "rmse": 0.002864,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0126,
+              "calibration_score": 0.4576,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.002328,
+              "rmse": 0.002864,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0126,
+              "calibration_score": 0.4576,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.002489,
+              "rmse": 0.002966,
+              "directional_accuracy": 0.3125,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0148,
+              "calibration_score": 0.4435,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.002777,
+              "rmse": 0.003251,
+              "directional_accuracy": 0.0625,
+              "interval_coverage": 1.0,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0131,
+              "calibration_score": 0.3924,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "MSPE's xgboost significantly outperformed baselines for SPX at the 1D horizon (+34% improvement). Range coverage: 88%, directional accuracy: 56%."
+        },
+        "3D": {
+          "horizon_days": 3,
+          "horizon_label": "3D",
+          "best_model": "ewma",
+          "baseline_beaten": true,
+          "best_baseline_model": "last_price_baseline",
+          "best_baseline_score": 0.688,
+          "best_model_score": 0.7964,
+          "improvement_over_baseline": 0.1576,
+          "model_rankings": [
+            {
+              "model_name": "ewma",
+              "mae": 0.006065,
+              "rmse": 0.008103,
+              "directional_accuracy": 0.3125,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0227,
+              "calibration_score": 0.7964,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.007434,
+              "rmse": 0.009306,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0179,
+              "calibration_score": 0.7657,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.005011,
+              "rmse": 0.00733,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0218,
+              "calibration_score": 0.7273,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.005346,
+              "rmse": 0.00764,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0219,
+              "calibration_score": 0.688,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.005346,
+              "rmse": 0.00764,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0219,
+              "calibration_score": 0.688,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.006006,
+              "rmse": 0.007798,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0219,
+              "calibration_score": 0.6845,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.005607,
+              "rmse": 0.007796,
+              "directional_accuracy": 0.3125,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0207,
+              "calibration_score": 0.6745,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.005706,
+              "rmse": 0.007898,
+              "directional_accuracy": 0.3125,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0257,
+              "calibration_score": 0.6724,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "MSPE's ewma significantly outperformed baselines for SPX at the 3D horizon (+16% improvement). Range coverage: 81%, directional accuracy: 31%."
+        },
+        "7D": {
+          "horizon_days": 7,
+          "horizon_label": "7D",
+          "best_model": "last_price_baseline",
+          "baseline_beaten": false,
+          "best_baseline_model": "last_price_baseline",
+          "best_baseline_score": 0.7322,
+          "best_model_score": 0.7322,
+          "improvement_over_baseline": 0.0,
+          "model_rankings": [
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.008172,
+              "rmse": 0.010428,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0334,
+              "calibration_score": 0.7322,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.008172,
+              "rmse": 0.010428,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0334,
+              "calibration_score": 0.7322,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.008838,
+              "rmse": 0.011387,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0335,
+              "calibration_score": 0.7289,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.009065,
+              "rmse": 0.011675,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0347,
+              "calibration_score": 0.6898,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.007861,
+              "rmse": 0.01038,
+              "directional_accuracy": 0.625,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0313,
+              "calibration_score": 0.597,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.008066,
+              "rmse": 0.010248,
+              "directional_accuracy": 0.625,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0334,
+              "calibration_score": 0.5953,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.007901,
+              "rmse": 0.010507,
+              "directional_accuracy": 0.625,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0393,
+              "calibration_score": 0.5944,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.010744,
+              "rmse": 0.014094,
+              "directional_accuracy": 0.625,
+              "interval_coverage": 0.625,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0273,
+              "calibration_score": 0.5088,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "For 7D projections, baseline methods performed best for SPX. However, the projection range still captured actual prices 88% of the time. MSPE is more useful for risk range estimation than exact direction at this horizon."
+        },
+        "30D": {
+          "horizon_days": 30,
+          "horizon_label": "30D",
+          "best_model": "garch",
+          "baseline_beaten": true,
+          "best_baseline_model": "last_price_baseline",
+          "best_baseline_score": 0.6738,
+          "best_model_score": 0.7445,
+          "improvement_over_baseline": 0.1049,
+          "model_rankings": [
+            {
+              "model_name": "garch",
+              "mae": 0.016707,
+              "rmse": 0.020975,
+              "directional_accuracy": 0.5882,
+              "interval_coverage": 0.7647,
+              "var_breach_rate": 0.1176,
+              "band_width": 0.0578,
+              "calibration_score": 0.7445,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.013463,
+              "rmse": 0.018059,
+              "directional_accuracy": 0.6471,
+              "interval_coverage": 0.8824,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.0669,
+              "calibration_score": 0.6738,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.013463,
+              "rmse": 0.018059,
+              "directional_accuracy": 0.6471,
+              "interval_coverage": 0.8824,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.0669,
+              "calibration_score": 0.6738,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.018063,
+              "rmse": 0.02253,
+              "directional_accuracy": 0.5882,
+              "interval_coverage": 0.8824,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0818,
+              "calibration_score": 0.6374,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.013606,
+              "rmse": 0.01802,
+              "directional_accuracy": 0.4118,
+              "interval_coverage": 0.8824,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.0668,
+              "calibration_score": 0.6261,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.022298,
+              "rmse": 0.026964,
+              "directional_accuracy": 0.5882,
+              "interval_coverage": 0.7059,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.067,
+              "calibration_score": 0.6014,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.021938,
+              "rmse": 0.029316,
+              "directional_accuracy": 0.4706,
+              "interval_coverage": 0.6471,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.069,
+              "calibration_score": 0.461,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.052262,
+              "rmse": 0.05966,
+              "directional_accuracy": 0.2941,
+              "interval_coverage": 0.2941,
+              "var_breach_rate": 0.0588,
+              "band_width": 0.06,
+              "calibration_score": 0.2463,
+              "num_validation_steps": 17
+            }
+          ],
+          "conclusion": "MSPE's garch significantly outperformed baselines for SPX at the 30D horizon (+10% improvement). Range coverage: 76%, directional accuracy: 59%."
+        }
+      },
+      "user_metrics": {
+        "projection_accuracy": "91.8%",
+        "projection_accuracy_value": 0.9183,
+        "range_reliability": "88%",
+        "range_reliability_value": 0.875,
+        "risk_warning_quality": "Good",
+        "risk_warning_quality_value": 0.875,
+        "baseline_improvement": "Similar to baseline",
+        "baseline_improvement_value": 0.0,
+        "model_confidence": "High",
+        "model_confidence_value": 0.7322
+      },
+      "overall_conclusion": "MSPE improved projection quality for SPX at 1D, 3D, 30D horizons, while baseline methods remained competitive at other horizons."
+    },
+    "XAU": {
+      "symbol": "XAU",
+      "asset_name": "Gold Commodity",
+      "horizons": {
+        "1D": {
+          "horizon_days": 1,
+          "horizon_label": "1D",
+          "best_model": "ewma",
+          "baseline_beaten": true,
+          "best_baseline_model": "rolling_mean_baseline",
+          "best_baseline_score": 0.7833,
+          "best_model_score": 0.7841,
+          "improvement_over_baseline": 0.001,
+          "model_rankings": [
+            {
+              "model_name": "ewma",
+              "mae": 0.004291,
+              "rmse": 0.005062,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0126,
+              "calibration_score": 0.7841,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.004443,
+              "rmse": 0.005277,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0125,
+              "calibration_score": 0.7833,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.004664,
+              "rmse": 0.005435,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0123,
+              "calibration_score": 0.7446,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.00457,
+              "rmse": 0.005331,
+              "directional_accuracy": 0.3125,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0126,
+              "calibration_score": 0.7325,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.004464,
+              "rmse": 0.005245,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.6875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0124,
+              "calibration_score": 0.6456,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.004464,
+              "rmse": 0.005245,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.6875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0124,
+              "calibration_score": 0.6456,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.004546,
+              "rmse": 0.005291,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.9375,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0176,
+              "calibration_score": 0.5936,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.005158,
+              "rmse": 0.006064,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.5625,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0132,
+              "calibration_score": 0.4416,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "MSPE marginally improved 1D projections for XAU. The improvement is small (0%), suggesting both approaches have similar predictive power at this horizon."
+        },
+        "3D": {
+          "horizon_days": 3,
+          "horizon_label": "3D",
+          "best_model": "arima",
+          "baseline_beaten": true,
+          "best_baseline_model": "rolling_mean_baseline",
+          "best_baseline_score": 0.7931,
+          "best_model_score": 0.8259,
+          "improvement_over_baseline": 0.0414,
+          "model_rankings": [
+            {
+              "model_name": "arima",
+              "mae": 0.007681,
+              "rmse": 0.009298,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0214,
+              "calibration_score": 0.8259,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.006682,
+              "rmse": 0.008407,
+              "directional_accuracy": 0.8125,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0218,
+              "calibration_score": 0.8184,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.006753,
+              "rmse": 0.008362,
+              "directional_accuracy": 0.6875,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0216,
+              "calibration_score": 0.7931,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.007702,
+              "rmse": 0.009435,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0229,
+              "calibration_score": 0.7628,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.008006,
+              "rmse": 0.009603,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0306,
+              "calibration_score": 0.6714,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.007792,
+              "rmse": 0.009547,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.6875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0216,
+              "calibration_score": 0.6002,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.007792,
+              "rmse": 0.009547,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.6875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0216,
+              "calibration_score": 0.6002,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.009547,
+              "rmse": 0.010895,
+              "directional_accuracy": 0.375,
+              "interval_coverage": 0.5,
+              "var_breach_rate": 0.125,
+              "band_width": 0.0229,
+              "calibration_score": 0.416,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "MSPE improved 3D projection quality for XAU by 4% over the best baseline. Range coverage: 81%."
+        },
+        "7D": {
+          "horizon_days": 7,
+          "horizon_label": "7D",
+          "best_model": "garch",
+          "baseline_beaten": true,
+          "best_baseline_model": "rolling_mean_baseline",
+          "best_baseline_score": 0.7367,
+          "best_model_score": 0.835,
+          "improvement_over_baseline": 0.1334,
+          "model_rankings": [
+            {
+              "model_name": "garch",
+              "mae": 0.009969,
+              "rmse": 0.012962,
+              "directional_accuracy": 0.625,
+              "interval_coverage": 0.8125,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0361,
+              "calibration_score": 0.835,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.008644,
+              "rmse": 0.011557,
+              "directional_accuracy": 0.75,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0333,
+              "calibration_score": 0.7924,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.010572,
+              "rmse": 0.01324,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0327,
+              "calibration_score": 0.7455,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.009791,
+              "rmse": 0.011802,
+              "directional_accuracy": 0.5,
+              "interval_coverage": 0.75,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0331,
+              "calibration_score": 0.7367,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.010658,
+              "rmse": 0.013515,
+              "directional_accuracy": 0.4375,
+              "interval_coverage": 0.875,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0468,
+              "calibration_score": 0.6659,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.010592,
+              "rmse": 0.013419,
+              "directional_accuracy": 0.4375,
+              "interval_coverage": 0.6875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0329,
+              "calibration_score": 0.5953,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.010592,
+              "rmse": 0.013419,
+              "directional_accuracy": 0.4375,
+              "interval_coverage": 0.6875,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.0329,
+              "calibration_score": 0.5953,
+              "num_validation_steps": 16
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.013707,
+              "rmse": 0.016844,
+              "directional_accuracy": 0.5625,
+              "interval_coverage": 0.5625,
+              "var_breach_rate": 0.0625,
+              "band_width": 0.035,
+              "calibration_score": 0.4301,
+              "num_validation_steps": 16
+            }
+          ],
+          "conclusion": "MSPE's garch significantly outperformed baselines for XAU at the 7D horizon (+13% improvement). Range coverage: 81%, directional accuracy: 62%."
+        },
+        "30D": {
+          "horizon_days": 30,
+          "horizon_label": "30D",
+          "best_model": "historical_mean_baseline",
+          "baseline_beaten": false,
+          "best_baseline_model": "historical_mean_baseline",
+          "best_baseline_score": 0.6476,
+          "best_model_score": 0.6476,
+          "improvement_over_baseline": 0.0,
+          "model_rankings": [
+            {
+              "model_name": "historical_mean_baseline",
+              "mae": 0.026241,
+              "rmse": 0.033875,
+              "directional_accuracy": 0.2353,
+              "interval_coverage": 0.8235,
+              "var_breach_rate": 0.0,
+              "band_width": 0.0996,
+              "calibration_score": 0.6476,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "arima",
+              "mae": 0.019486,
+              "rmse": 0.027467,
+              "directional_accuracy": 0.5882,
+              "interval_coverage": 0.7059,
+              "var_breach_rate": 0.2353,
+              "band_width": 0.0673,
+              "calibration_score": 0.6124,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "garch",
+              "mae": 0.024053,
+              "rmse": 0.032929,
+              "directional_accuracy": 0.5882,
+              "interval_coverage": 0.7059,
+              "var_breach_rate": 0.1176,
+              "band_width": 0.0809,
+              "calibration_score": 0.5906,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "last_price_baseline",
+              "mae": 0.019835,
+              "rmse": 0.027822,
+              "directional_accuracy": 0.2941,
+              "interval_coverage": 0.7059,
+              "var_breach_rate": 0.2353,
+              "band_width": 0.0683,
+              "calibration_score": 0.5519,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "rolling_vol_baseline",
+              "mae": 0.019835,
+              "rmse": 0.027822,
+              "directional_accuracy": 0.2941,
+              "interval_coverage": 0.7059,
+              "var_breach_rate": 0.2353,
+              "band_width": 0.0683,
+              "calibration_score": 0.5519,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "rolling_mean_baseline",
+              "mae": 0.03224,
+              "rmse": 0.041582,
+              "directional_accuracy": 0.5882,
+              "interval_coverage": 0.5882,
+              "var_breach_rate": 0.2353,
+              "band_width": 0.0698,
+              "calibration_score": 0.3541,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "ewma",
+              "mae": 0.032785,
+              "rmse": 0.040228,
+              "directional_accuracy": 0.5882,
+              "interval_coverage": 0.5882,
+              "var_breach_rate": 0.1765,
+              "band_width": 0.0731,
+              "calibration_score": 0.3514,
+              "num_validation_steps": 17
+            },
+            {
+              "model_name": "xgboost",
+              "mae": 0.078709,
+              "rmse": 0.09341,
+              "directional_accuracy": 0.3529,
+              "interval_coverage": 0.1176,
+              "var_breach_rate": 0.1765,
+              "band_width": 0.0777,
+              "calibration_score": 0.2094,
+              "num_validation_steps": 17
+            }
+          ],
+          "conclusion": "For 30D projections, baseline methods performed best for XAU. However, the projection range still captured actual prices 82% of the time. MSPE is more useful for risk range estimation than exact direction at this horizon."
+        }
+      },
+      "user_metrics": {
+        "projection_accuracy": "90.0%",
+        "projection_accuracy_value": 0.9003,
+        "range_reliability": "81%",
+        "range_reliability_value": 0.8125,
+        "risk_warning_quality": "Good",
+        "risk_warning_quality_value": 0.875,
+        "baseline_improvement": "+13% over rolling_mean_baseline",
+        "baseline_improvement_value": 0.1334,
+        "model_confidence": "High",
+        "model_confidence_value": 0.835
+      },
+      "overall_conclusion": "MSPE improved projection quality for XAU at 1D, 3D, 7D horizons, while baseline methods remained competitive at other horizons."
+    }
+  }
+}

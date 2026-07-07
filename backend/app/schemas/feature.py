@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Optional, List, Dict
 from pydantic import BaseModel, ConfigDict
 
+
 class MarketFeatureBase(BaseModel):
     timestamp: datetime
     resolution: str
@@ -34,8 +35,10 @@ class MarketFeatureBase(BaseModel):
     rolling_skewness_30: Optional[float] = None
     rolling_kurtosis_30: Optional[float] = None
 
+
 class MarketFeatureCreate(MarketFeatureBase):
     asset_id: uuid.UUID
+
 
 class MarketFeature(MarketFeatureBase):
     asset_id: uuid.UUID

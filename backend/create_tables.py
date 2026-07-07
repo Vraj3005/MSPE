@@ -1,4 +1,5 @@
 """Create all database tables on the remote Supabase PostgreSQL instance."""
+
 import asyncio
 from backend.app.db.base import Base  # noqa — triggers all model imports
 from backend.app.db.session import async_engine

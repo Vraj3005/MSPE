@@ -16,7 +16,7 @@ async_engine = create_async_engine(
     connect_args={
         "statement_cache_size": 0,
         "ssl": ssl._create_unverified_context(),
-    }
+    },
 )
 
 
@@ -25,18 +25,10 @@ async_session_maker = async_sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False,
     autocommit=False,
-    autoflush=False
+    autoflush=False,
 )
 
 # Synchronous engine for simple seeding scripts, test harnesses, or migrations
-sync_engine = create_engine(
-    settings.DATABASE_URL,
-    echo=False,
-    pool_pre_ping=True
-)
+sync_engine = create_engine(settings.DATABASE_URL, echo=False, pool_pre_ping=True)
 
-sync_session_maker = sessionmaker(
-    bind=sync_engine,
-    autocommit=False,
-    autoflush=False
-)
+sync_session_maker = sessionmaker(bind=sync_engine, autocommit=False, autoflush=False)

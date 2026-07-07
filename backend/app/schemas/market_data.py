@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, field_validator
 
+
 class MarketBarBase(BaseModel):
     timestamp: datetime
     open: float
@@ -25,8 +26,10 @@ class MarketBarBase(BaseModel):
             raise ValueError(f"Volume must be non-negative, got {v}")
         return v
 
+
 class MarketBarCreate(MarketBarBase):
     asset_id: uuid.UUID
+
 
 class MarketBar(MarketBarBase):
     asset_id: uuid.UUID

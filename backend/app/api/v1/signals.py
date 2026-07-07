@@ -11,13 +11,19 @@ from backend.app.services.signal import SignalService
 
 router = APIRouter()
 
+
 @router.get("/active", response_model=List[signal_schemas.TradingSignal])
 async def list_active_signals(db: AsyncSession = Depends(get_db)):
     """Retrieves all active trade positions currently open in the portfolio, ordered by Rank Score."""
-    query = select(TradingSignal).where(TradingSignal.is_active == True).order_by(TradingSignal.rank_score.desc())
+    query = (
+        select(TradingSignal)
+        .where(TradingSignal.is_active == True)
+        .order_by(TradingSignal.rank_score.desc())
+    )
     result = await db.execute(query)
     signals = result.scalars().all()
     return signals
+
 
 @router.get("/exposure", response_model=signal_schemas.PortfolioExposureSummary)
 async def get_portfolio_exposure_limits(db: AsyncSession = Depends(get_db)):
@@ -25,11 +31,14 @@ async def get_portfolio_exposure_limits(db: AsyncSession = Depends(get_db)):
     summary = await SignalService.get_portfolio_exposure(db)
     return summary
 
+
 @router.post("/evaluate")
 async def trigger_signals_evaluation_scan(background_tasks: BackgroundTasks):
     """Triggers an off-thread background task to execute a full strategy signal scan across all assets."""
+
     async def run_scan_task():
         from backend.app.db.session import async_session_maker
+
         async with async_session_maker() as background_db:
             try:
                 await SignalService.evaluate_signals(background_db)
@@ -39,5 +48,5 @@ async def trigger_signals_evaluation_scan(background_tasks: BackgroundTasks):
     background_tasks.add_task(run_scan_task)
     return {
         "status": "PROCESSING",
-        "detail": "Portfolio-wide strategy signal scanning and risk allocations triggered in background"
+        "detail": "Portfolio-wide strategy signal scanning and risk allocations triggered in background",
     }

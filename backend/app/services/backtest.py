@@ -1,11 +1,8 @@
-import numpy as np
 import pandas as pd
-from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 
-from backend.app.models.asset import Asset
 from backend.app.models.market_data import MarketBar
 from backend.app.models.feature import MarketFeature
 from backend.app.services.ingestion import IngestionService
@@ -19,7 +16,7 @@ class BacktestService:
         ticker: str,
         strategy_name: str = "SMA_CROSSOVER",
         initial_capital: float = 100000.0,
-        resolution: str = "1d"
+        resolution: str = "1d",
     ) -> Dict[str, Any]:
         """Runs a historical backtest for a selected asset and strategy using indicators in the database."""
         asset = await IngestionService.get_asset_by_ticker(db, ticker)
@@ -27,20 +24,33 @@ class BacktestService:
             raise ValueError(f"Asset with ticker {ticker} not found in catalog")
 
         # 1. Fetch bars and features
-        bar_query = select(MarketBar).where(
-            and_(MarketBar.asset_id == asset.id, MarketBar.resolution == resolution)
-        ).order_by(MarketBar.timestamp.asc())
+        bar_query = (
+            select(MarketBar)
+            .where(
+                and_(MarketBar.asset_id == asset.id, MarketBar.resolution == resolution)
+            )
+            .order_by(MarketBar.timestamp.asc())
+        )
         bar_res = await db.execute(bar_query)
         bars = bar_res.scalars().all()
 
-        feat_query = select(MarketFeature).where(
-            and_(MarketFeature.asset_id == asset.id, MarketFeature.resolution == resolution)
-        ).order_by(MarketFeature.timestamp.asc())
+        feat_query = (
+            select(MarketFeature)
+            .where(
+                and_(
+                    MarketFeature.asset_id == asset.id,
+                    MarketFeature.resolution == resolution,
+                )
+            )
+            .order_by(MarketFeature.timestamp.asc())
+        )
         feat_res = await db.execute(feat_query)
         features = feat_res.scalars().all()
 
         if len(bars) < 30:
-            raise ValueError(f"Insufficient history ({len(bars)} bars) to run backtest.")
+            raise ValueError(
+                f"Insufficient history ({len(bars)} bars) to run backtest."
+            )
 
         # Map features by timestamp
         feat_map = {f.timestamp: f for f in features}
@@ -51,13 +61,19 @@ class BacktestService:
             f = feat_map.get(bar.timestamp)
             if not f:
                 continue
-            aligned_data.append({
-                "timestamp": bar.timestamp,
-                "close": float(bar.close),
-                "sma_20": float(f.sma_20) if f.sma_20 is not None else float(bar.close),
-                "ema_20": float(f.ema_20) if f.ema_20 is not None else float(bar.close),
-                "rsi_14": float(f.rsi_14) if f.rsi_14 is not None else 50.0,
-            })
+            aligned_data.append(
+                {
+                    "timestamp": bar.timestamp,
+                    "close": float(bar.close),
+                    "sma_20": (
+                        float(f.sma_20) if f.sma_20 is not None else float(bar.close)
+                    ),
+                    "ema_20": (
+                        float(f.ema_20) if f.ema_20 is not None else float(bar.close)
+                    ),
+                    "rsi_14": float(f.rsi_14) if f.rsi_14 is not None else 50.0,
+                }
+            )
 
         df = pd.DataFrame(aligned_data)
         if df.empty:
@@ -69,15 +85,14 @@ class BacktestService:
         position_type = None  # "LONG" or "SHORT" or None
         entry_price = 0.0
         entry_time = None
-        
+
         trade_logs = []
         equity_curve = []
 
         # Add initial equity point
-        equity_curve.append({
-            "timestamp": df.iloc[0]["timestamp"].isoformat(),
-            "equity": capital
-        })
+        equity_curve.append(
+            {"timestamp": df.iloc[0]["timestamp"].isoformat(), "equity": capital}
+        )
 
         for i in range(len(df)):
             row = df.iloc[i]
@@ -120,28 +135,34 @@ class BacktestService:
                 # We have an open position
                 # Check for exits or flips
                 should_exit = False
-                
-                if position_type == "LONG" and (signal == "SELL_SHORT" or signal == "EXIT"):
+
+                if position_type == "LONG" and (
+                    signal == "SELL_SHORT" or signal == "EXIT"
+                ):
                     should_exit = True
                     pnl = (current_close - entry_price) * position_size
-                elif position_type == "SHORT" and (signal == "BUY_LONG" or signal == "EXIT"):
+                elif position_type == "SHORT" and (
+                    signal == "BUY_LONG" or signal == "EXIT"
+                ):
                     should_exit = True
                     pnl = (entry_price - current_close) * position_size
 
                 if should_exit:
                     capital += pnl
-                    trade_logs.append({
-                        "id": len(trade_logs) + 1,
-                        "type": position_type,
-                        "entry_time": entry_time.isoformat(),
-                        "exit_time": current_time.isoformat(),
-                        "entry_price": round(entry_price, 2),
-                        "exit_price": round(current_close, 2),
-                        "return_pct": round((pnl / (capital - pnl)) * 100, 2),
-                        "pnl_usd": round(pnl, 2),
-                        "capital_after": round(capital, 2)
-                    })
-                    
+                    trade_logs.append(
+                        {
+                            "id": len(trade_logs) + 1,
+                            "type": position_type,
+                            "entry_time": entry_time.isoformat(),
+                            "exit_time": current_time.isoformat(),
+                            "entry_price": round(entry_price, 2),
+                            "exit_price": round(current_close, 2),
+                            "return_pct": round((pnl / (capital - pnl)) * 100, 2),
+                            "pnl_usd": round(pnl, 2),
+                            "capital_after": round(capital, 2),
+                        }
+                    )
+
                     # Flip or Clear
                     if signal == "BUY_LONG" or signal == "SELL_SHORT":
                         position_type = "LONG" if signal == "BUY_LONG" else "SHORT"
@@ -159,11 +180,13 @@ class BacktestService:
                 current_equity = capital + (entry_price - current_close) * position_size
             else:
                 current_equity = capital
-                
-            equity_curve.append({
-                "timestamp": current_time.isoformat(),
-                "equity": round(current_equity, 2)
-            })
+
+            equity_curve.append(
+                {
+                    "timestamp": current_time.isoformat(),
+                    "equity": round(current_equity, 2),
+                }
+            )
 
         # Close out any remaining open trade at the last price
         if position_type is not None:
@@ -173,32 +196,40 @@ class BacktestService:
                 pnl = (last_close - entry_price) * position_size
             else:
                 pnl = (entry_price - last_close) * position_size
-            
+
             capital += pnl
-            trade_logs.append({
-                "id": len(trade_logs) + 1,
-                "type": position_type,
-                "entry_time": entry_time.isoformat(),
-                "exit_time": last_row["timestamp"].isoformat(),
-                "entry_price": round(entry_price, 2),
-                "exit_price": round(last_close, 2),
-                "return_pct": round((pnl / (capital - pnl)) * 100, 2),
-                "pnl_usd": round(pnl, 2),
-                "capital_after": round(capital, 2)
-            })
+            trade_logs.append(
+                {
+                    "id": len(trade_logs) + 1,
+                    "type": position_type,
+                    "entry_time": entry_time.isoformat(),
+                    "exit_time": last_row["timestamp"].isoformat(),
+                    "entry_price": round(entry_price, 2),
+                    "exit_price": round(last_close, 2),
+                    "return_pct": round((pnl / (capital - pnl)) * 100, 2),
+                    "pnl_usd": round(pnl, 2),
+                    "capital_after": round(capital, 2),
+                }
+            )
 
         # Calculate metrics
         total_trades = len(trade_logs)
         winning_trades = [t for t in trade_logs if t["pnl_usd"] > 0]
-        win_rate = (len(winning_trades) / total_trades * 100) if total_trades > 0 else 0.0
-        
+        win_rate = (
+            (len(winning_trades) / total_trades * 100) if total_trades > 0 else 0.0
+        )
+
         total_pnl = capital - initial_capital
         total_return_pct = (total_pnl / initial_capital) * 100
-        
+
         gross_profit = sum(t["pnl_usd"] for t in winning_trades)
         gross_loss = abs(sum(t["pnl_usd"] for t in trade_logs if t["pnl_usd"] < 0))
-        profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (gross_profit if gross_profit > 0 else 1.0)
-        
+        profit_factor = (
+            (gross_profit / gross_loss)
+            if gross_loss > 0
+            else (gross_profit if gross_profit > 0 else 1.0)
+        )
+
         # Calculate drawdown
         equities = [pt["equity"] for pt in equity_curve]
         peak = initial_capital
@@ -221,5 +252,5 @@ class BacktestService:
             "max_drawdown_pct": round(max_dd * 100, 2),
             "final_capital_usd": round(capital, 2),
             "equity_curve": equity_curve,
-            "trade_logs": list(reversed(trade_logs)) # return newest trades first
+            "trade_logs": list(reversed(trade_logs)),  # return newest trades first
         }

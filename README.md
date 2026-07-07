@@ -89,6 +89,22 @@ To guarantee mathematical honesty and transparency, MSPE is audited against a ro
 
 ---
 
+## Deep Learning Feasibility & Model Choice
+
+To maintain quantitative and mathematical integrity, we evaluated whether to incorporate deep learning models (such as LSTMs or Transformers) into MSPE. 
+
+**Decision:** We have explicitly rejected deep learning for this version of the engine. 
+
+### Why Statistical + Traditional ML Models are Preferred:
+1. **Microscopic Dataset Size:** Daily asset histories over a standard 1-year lookback yield only 252 data points. Deep neural networks have thousands of parameters and require massive datasets (100,000+ points) to prevent severe overfitting.
+2. **Noise vs. Signal:** Daily asset returns have a near-zero signal-to-noise ratio. Complex models like LSTMs easily memorize historical noise, resulting in poor out-of-sample performance compared to regularized models.
+3. **Parametric Regularization:** ARIMA and GARCH enforce strict parametric assumptions that act as regularizers, making them robust. Similarly, XGBoost is heavily regularized and outperforms LSTMs on small tabular sets.
+4. **Operational Footprint:** Adding PyTorch (`torch`) would bloat the backend by 2GB+ and exceed RAM limits on free hosting tiers (e.g. Render, Fly.io), leading to container crashes.
+
+For a full breakdown of this evaluation, see the [DEEP_LEARNING_FEASIBILITY.md](file:///c:/Desktop/MSPE_PR/DEEP_LEARNING_FEASIBILITY.md) report in the workspace root.
+
+---
+
 ## How to Run Locally
 
 ### 1. Backend Server Setup

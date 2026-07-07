@@ -1,13 +1,18 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
+from typing import List
+
 
 class BacktestRequest(BaseModel):
-    strategy_name: str = Field("SMA_CROSSOVER", pattern="^(SMA_CROSSOVER|RSI_MEAN_REVERSION)$")
+    strategy_name: str = Field(
+        "SMA_CROSSOVER", pattern="^(SMA_CROSSOVER|RSI_MEAN_REVERSION)$"
+    )
     initial_capital: float = Field(100000.0, ge=1000.0)
+
 
 class EquityCurveNode(BaseModel):
     timestamp: str
     equity: float
+
 
 class TradeLogNode(BaseModel):
     id: int
@@ -19,6 +24,7 @@ class TradeLogNode(BaseModel):
     return_pct: float
     pnl_usd: float
     capital_after: float
+
 
 class BacktestResponse(BaseModel):
     strategy: str

@@ -1,0 +1,5 @@
+asset,projection_accuracy,range_reliability,risk_warning_quality,baseline_improvement,model_confidence,horizons_tested,horizons_beating_baseline,overall_conclusion
+BTCUSDT,61.8%,81%,Good,Similar to baseline,High,4,1,"MSPE showed improvement for BTCUSDT only at 30D. For other horizons, simpler models performed similarly or better. The engine is most useful for risk range estimation."
+ETHUSDT,79.7%,81%,Fair,Similar to baseline,High,4,3,"MSPE improved projection quality for ETHUSDT at 1D, 3D, 30D horizons, while baseline methods remained competitive at other horizons."
+SPX,91.8%,88%,Good,Similar to baseline,High,4,3,"MSPE improved projection quality for SPX at 1D, 3D, 30D horizons, while baseline methods remained competitive at other horizons."
+XAU,90.0%,81%,Good,+13% over rolling_mean_baseline,High,4,3,"MSPE improved projection quality for XAU at 1D, 3D, 7D horizons, while baseline methods remained competitive at other horizons."

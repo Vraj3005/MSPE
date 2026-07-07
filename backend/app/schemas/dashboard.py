@@ -1,8 +1,10 @@
 from datetime import datetime
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, ConfigDict
+from typing import List, Dict, Optional
+from pydantic import BaseModel, ConfigDict
+from backend.app.schemas.explanations import ExplainabilityLayer
 
 # ==================== V1 Backward Compatibility Schemas ====================
+
 
 class CurrentMarketData(BaseModel):
     symbol: str
@@ -13,6 +15,7 @@ class CurrentMarketData(BaseModel):
     daily_return: float
     seven_day_return: Optional[float] = None
     thirty_day_return: Optional[float] = None
+
 
 class HorizonProjection(BaseModel):
     horizon_days: int
@@ -25,6 +28,7 @@ class HorizonProjection(BaseModel):
     projected_volatility: float
     confidence_band_width: float
 
+
 class AssetRiskSummary(BaseModel):
     risk_level: str  # 'Low', 'Medium', 'High', 'Extreme'
     risk_score: float  # 0 to 100
@@ -33,6 +37,7 @@ class AssetRiskSummary(BaseModel):
     max_drawdown: float
     volatility_percentile: float
     downside_probability: float
+
 
 class AssetDashboardResult(BaseModel):
     market_data: CurrentMarketData
@@ -44,6 +49,7 @@ class AssetDashboardResult(BaseModel):
     reason_sentence: str
     is_demo: bool = False
 
+
 class DashboardResultsResponse(BaseModel):
     timestamp: datetime
     assets: Dict[str, AssetDashboardResult]
@@ -51,7 +57,9 @@ class DashboardResultsResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
 # ==================== V2 Refactored Schemas ====================
+
 
 # Endpoint 1: Overview
 class TopCard(BaseModel):
@@ -59,6 +67,7 @@ class TopCard(BaseModel):
     value: str
     description: str
     type: str
+
 
 class AssetCard(BaseModel):
     symbol: str
@@ -71,6 +80,7 @@ class AssetCard(BaseModel):
     market_read: str
     base_case_7d: float
 
+
 class DashboardOverviewResponse(BaseModel):
     last_updated: datetime
     data_mode: str  # 'live' | 'demo' | 'cached'
@@ -80,6 +90,7 @@ class DashboardOverviewResponse(BaseModel):
     market_summary_text: str
     top_cards: List[TopCard]
     asset_cards: List[AssetCard]
+
 
 # Endpoint 2: Simple List
 class AssetSummary(BaseModel):
@@ -92,6 +103,7 @@ class AssetSummary(BaseModel):
     base_case_7d: float
     probability_of_loss_7d: float
 
+
 # Endpoint 3: Projection Detail
 class AssetInfo(BaseModel):
     symbol: str
@@ -99,6 +111,7 @@ class AssetInfo(BaseModel):
     asset_class: str
     last_close: float
     latest_date: datetime
+
 
 class HorizonResult(BaseModel):
     horizon_days: int
@@ -111,14 +124,17 @@ class HorizonResult(BaseModel):
     projected_volatility: float
     confidence_band_width: float
 
+
 class DensityData(BaseModel):
     prices: List[float]
     densities: List[float]
+
 
 class ExplanationText(BaseModel):
     summary: str
     warning: str
     reason: str
+
 
 class AssetProjectionResponse(BaseModel):
     asset: AssetInfo
@@ -129,7 +145,9 @@ class AssetProjectionResponse(BaseModel):
     monte_carlo_paths: List[List[float]]
     probability_density_data: Optional[DensityData] = None
     explanation_text: ExplanationText
+    explainability: ExplainabilityLayer
     data_mode: str
+
 
 # Endpoint 4: Risk Detail
 class StressScenario(BaseModel):
@@ -138,10 +156,12 @@ class StressScenario(BaseModel):
     portfolio_return_shock: float
     portfolio_usd_impact: float
 
+
 class RiskExplanation(BaseModel):
     summary: str
     warning: str
     reason: str
+
 
 class AssetRiskResponse(BaseModel):
     symbol: str
@@ -154,6 +174,7 @@ class AssetRiskResponse(BaseModel):
     stress_test_summary: List[StressScenario]
     plain_language_explanation: RiskExplanation
     data_mode: str
+
 
 # Endpoint 5: Methodology
 class MethodologyResponse(BaseModel):

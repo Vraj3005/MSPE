@@ -9,11 +9,12 @@ from backend.app.schemas.dashboard import (
     AssetSummary,
     AssetProjectionResponse,
     AssetRiskResponse,
-    MethodologyResponse
+    MethodologyResponse,
 )
 from backend.app.core.logging import logger
 
 router = APIRouter()
+
 
 @router.get("/dashboard/overview", response_model=DashboardOverviewResponse)
 async def get_dashboard_overview(db: AsyncSession = Depends(get_db)):
@@ -23,9 +24,9 @@ async def get_dashboard_overview(db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error serving overview API: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to serve dashboard overview: {str(e)}"
+            status_code=500, detail=f"Failed to serve dashboard overview: {str(e)}"
         )
+
 
 @router.get("/assets", response_model=List[AssetSummary])
 async def get_assets_list(db: AsyncSession = Depends(get_db)):
@@ -35,9 +36,9 @@ async def get_assets_list(db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error serving assets list API: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to serve assets summary list: {str(e)}"
+            status_code=500, detail=f"Failed to serve assets summary list: {str(e)}"
         )
+
 
 @router.get("/assets/{symbol}/projection", response_model=AssetProjectionResponse)
 async def get_asset_projection(symbol: str, db: AsyncSession = Depends(get_db)):
@@ -49,9 +50,9 @@ async def get_asset_projection(symbol: str, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error serving projection API for {symbol}: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to serve asset projection: {str(e)}"
+            status_code=500, detail=f"Failed to serve asset projection: {str(e)}"
         )
+
 
 @router.get("/assets/{symbol}/risk", response_model=AssetRiskResponse)
 async def get_asset_risk(symbol: str, db: AsyncSession = Depends(get_db)):
@@ -63,9 +64,9 @@ async def get_asset_risk(symbol: str, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error serving risk API for {symbol}: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to serve asset risk details: {str(e)}"
+            status_code=500, detail=f"Failed to serve asset risk details: {str(e)}"
         )
+
 
 @router.get("/methodology/simple", response_model=MethodologyResponse)
 def get_methodology():
@@ -75,6 +76,5 @@ def get_methodology():
     except Exception as e:
         logger.error(f"Error serving methodology API: {e}")
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to serve methodology guidelines: {str(e)}"
+            status_code=500, detail=f"Failed to serve methodology guidelines: {str(e)}"
         )

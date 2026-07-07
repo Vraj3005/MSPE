@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 
+
 class ModelMetadataBase(BaseModel):
     model_name: str
     model_type: str
@@ -11,14 +12,17 @@ class ModelMetadataBase(BaseModel):
     file_path: str
     is_active: bool = True
 
+
 class ModelMetadataCreate(ModelMetadataBase):
     pass
+
 
 class ModelMetadata(ModelMetadataBase):
     id: uuid.UUID
     trained_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class MarketForecastBase(BaseModel):
     timestamp: datetime
@@ -27,9 +31,11 @@ class MarketForecastBase(BaseModel):
     expected_volatility: float
     confidence_score: float = Field(..., ge=0.0, le=1.0)
 
+
 class MarketForecastCreate(MarketForecastBase):
     asset_id: uuid.UUID
     model_id: uuid.UUID
+
 
 class MarketForecast(MarketForecastBase):
     asset_id: uuid.UUID
