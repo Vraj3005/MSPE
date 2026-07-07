@@ -579,6 +579,7 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
                   layout={{
                     autosize: true,
                     barmode: 'group' as const,
+                    uirevision: true,
                     legend: { 
                       font: { size: 9, color: theme === 'light' ? '#334155' : '#E2E8F0' }, 
                       orientation: 'h', 

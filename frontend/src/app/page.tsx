@@ -11,15 +11,12 @@ import MethodologyPage from '../components/MethodologyPage';
 import { Calendar, Sun, Moon } from 'lucide-react';
 import { copy } from '../content/copy';
 
-export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<string>('OVERVIEW');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+function SystemClock({ theme }: { theme: 'light' | 'dark' }) {
   const [currentTime, setCurrentTime] = useState<string>('');
   const [mounted, setMounted] = useState<boolean>(false);
 
   useEffect(() => {
     setMounted(true);
-    // Sync live system quantitative clock
     const updateTime = () => {
       const now = new Date();
       setCurrentTime(now.toLocaleString('en-US', { 
@@ -33,6 +30,26 @@ export default function DashboardPage() {
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold ${
+      theme === 'light'
+        ? 'bg-slate-100 border-slate-200 text-slate-900'
+        : 'bg-[#0B0F19]/60 border-[#1F2942]/60 text-slate-300'
+    }`}>
+      <span>{mounted ? (currentTime || 'SYNCHRONIZING...') : 'SYNCHRONIZING...'}</span>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  const [activeTab, setActiveTab] = useState<string>('OVERVIEW');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [mounted, setMounted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   const toggleTheme = () => {
@@ -108,13 +125,7 @@ export default function DashboardPage() {
               <span>{mounted ? new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: '2-digit' }) : '---'}</span>
             </div>
             
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-bold ${
-              theme === 'light'
-                ? 'bg-slate-100 border-slate-200 text-slate-900'
-                : 'bg-[#0B0F19]/60 border-[#1F2942]/60 text-slate-300'
-            }`}>
-              <span>{mounted ? (currentTime || 'SYNCHRONIZING...') : 'SYNCHRONIZING...'}</span>
-            </div>
+            <SystemClock theme={theme} />
           </div>
         </header>
 

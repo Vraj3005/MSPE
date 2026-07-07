@@ -235,6 +235,7 @@ export default function RiskProfiles() {
                 layout={{
                   title: { text: 'Risk-Adjusted Ratios & Beta Sensitivity', font: { color: '#F1F5F9', family: 'Inter', size: 12 } },
                   barmode: 'group',
+                  uirevision: true,
                   paper_bgcolor: 'rgba(0,0,0,0)',
                   plot_bgcolor: 'rgba(0,0,0,0)',
                   xaxis: { gridcolor: '#1F2942/20', tickfont: { color: '#94A3B8', size: 9 }, linecolor: '#1F2942' },
@@ -261,6 +262,7 @@ export default function RiskProfiles() {
                 ]}
                 layout={{
                   title: { text: 'Peak-to-Trough Maximum Drawdowns (%)', font: { color: '#F1F5F9', family: 'Inter', size: 12 } },
+                  uirevision: true,
                   paper_bgcolor: 'rgba(0,0,0,0)',
                   plot_bgcolor: 'rgba(0,0,0,0)',
                   xaxis: { gridcolor: '#1F2942/20', tickfont: { color: '#94A3B8', size: 9 }, linecolor: '#1F2942' },

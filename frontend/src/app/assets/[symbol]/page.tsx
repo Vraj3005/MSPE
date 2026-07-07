@@ -349,6 +349,7 @@ export default function AssetDetailPage() {
               ]}
               layout={{
                 autosize: true,
+                uirevision: symbol,
                 showlegend: true,
                 legend: { 
                   font: { color: theme === 'light' ? '#475569' : '#94A3B8', size: 9 }, 
@@ -428,6 +429,7 @@ export default function AssetDetailPage() {
               ]}
               layout={{
                 autosize: true,
+                uirevision: symbol,
                 showlegend: false,
                 margin: { l: 55, r: 15, t: 15, b: 30 },
                 paper_bgcolor: 'rgba(0,0,0,0)',

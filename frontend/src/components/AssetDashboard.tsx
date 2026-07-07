@@ -193,6 +193,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
         ]}
         layout={{
           autosize: true,
+          uirevision: selectedTicker,
           margin: { l: 55, r: 15, t: 15, b: 35 },
           paper_bgcolor: 'rgba(0,0,0,0)',
           plot_bgcolor: 'rgba(0,0,0,0)',
@@ -264,6 +265,7 @@ export default function AssetDashboard({ theme = 'light' }: AssetDashboardProps)
         ]}
         layout={{
           autosize: true,
+          uirevision: selectedTicker,
           margin: { l: 50, r: 15, t: 15, b: 35 },
           paper_bgcolor: 'rgba(0,0,0,0)',
           plot_bgcolor: 'rgba(0,0,0,0)',

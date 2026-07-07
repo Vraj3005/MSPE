@@ -241,6 +241,7 @@ export default function BacktestResults({ theme = 'light' }: BacktestResultsProp
                   text: `Equity Curve Simulation (Start: $${initialCapital.toLocaleString()} USD)`, 
                   font: { color: theme === 'light' ? '#0F172A' : '#F1F5F9', family: 'Inter', size: 13 } 
                 },
+                uirevision: true,
                 showlegend: false,
                 xaxis: { 
                   gridcolor: theme === 'light' ? 'rgba(203,213,225,0.4)' : '#1F2942/20', 

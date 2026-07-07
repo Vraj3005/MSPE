@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { api, SurfaceProjectionResponse, ProjectedSurfaceBase } from '../lib/api';
 import { Layers, RefreshCw, Info, HelpCircle, ShieldAlert } from 'lucide-react';
@@ -195,6 +195,7 @@ export default function ProjectionSurface({ theme = 'light' }: ProjectionSurface
         camera: { eye: { x: 1.35, y: 1.35, z: 1.1 } },
         bgcolor: 'rgba(0,0,0,0)'
       },
+      uirevision: ticker,
       paper_bgcolor: 'rgba(0,0,0,0)',
       plot_bgcolor: 'rgba(0,0,0,0)',
       margin: { l: 5, r: 5, t: 25, b: 5 }
@@ -206,6 +207,9 @@ export default function ProjectionSurface({ theme = 'light' }: ProjectionSurface
       ? 'bg-teal-50 border-teal-200 text-teal-700 dark:bg-teal-950/20 dark:border-teal-900/30 dark:text-teal-400'
       : 'bg-orange-50 border-orange-250 text-orange-800 dark:bg-orange-950/20 dark:border-orange-900/30 dark:text-orange-400';
   };
+
+  const plotData = useMemo(() => construct3DPlotData(), [projection]);
+  const plotLayout = useMemo(() => getLayoutThemeSettings(), [theme, ticker]);
 
   return (
     <div className={`space-y-8 min-h-screen p-6 rounded-2xl border transition-all duration-300 ${
@@ -272,8 +276,8 @@ export default function ProjectionSurface({ theme = 'light' }: ProjectionSurface
             theme === 'light' ? 'bg-white border-slate-200' : 'glass-panel border-[#1F2942] bg-[#151D30]/30'
           }`}>
             <Plot
-              data={construct3DPlotData()}
-              layout={getLayoutThemeSettings() as any}
+              data={plotData}
+              layout={plotLayout as any}
               config={{ responsive: true, displayModeBar: false }}
               className="w-full h-full"
             />
