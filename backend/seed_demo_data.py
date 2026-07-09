@@ -20,7 +20,7 @@ async def run_pipeline():
     async with async_session_maker() as db:
         # 1. Fetch active assets
         print("Querying active assets...")
-        result = await db.execute(select(Asset).where(Asset.is_active == True))
+        result = await db.execute(select(Asset).where(Asset.is_active))
         assets = result.scalars().all()
 
         if not assets:
@@ -100,7 +100,7 @@ async def run_pipeline():
         print("Step 5/5: Running Risk Analytics and Stress Tests...")
         print("==================================================")
         try:
-            risk_results = await RiskService.evaluate_risk_analytics(db)
+            await RiskService.evaluate_risk_analytics(db)
             print(
                 "Risk analytics evaluation successfully calculated and committed to DB!"
             )

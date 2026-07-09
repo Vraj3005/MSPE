@@ -74,7 +74,7 @@ def run_validation():
 
             spot = train_prices[-1]
             actual_price = prices[step + horizon_days]
-            actual_return = (actual_price - spot) / spot
+            (actual_price - spot) / spot
 
             # 1. GBM model parameters
             hist_drift = np.mean(train_returns) * 252.0
@@ -84,7 +84,7 @@ def run_validation():
             # Falls back to rolling std with decay
             weights = np.exp(np.linspace(-2, 0, len(train_returns)))
             weights /= np.sum(weights)
-            garch_vol = np.sqrt(
+            np.sqrt(
                 np.sum(weights * (train_returns - np.mean(train_returns)) ** 2)
             ) * np.sqrt(252.0)
 

@@ -107,7 +107,7 @@ def run_walk_forward_validation(
         WalkForwardResult with selected model and all metrics
     """
     n_returns = len(returns)
-    n_prices = len(prices)
+    len(prices)
 
     # We need at least min_train_size + horizon data points for validation
     if n_returns < min_train_size + horizon + 10:
@@ -133,7 +133,7 @@ def run_walk_forward_validation(
     # Initialize tracking arrays for each model
     model_templates = get_all_models()
     model_names = [m.name for m in model_templates]
-    n_models = len(model_names)
+    len(model_names)
 
     # Per-model tracking
     predicted_returns_by_model = {name: [] for name in model_names}

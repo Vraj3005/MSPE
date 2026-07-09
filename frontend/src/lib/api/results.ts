@@ -1,15 +1,11 @@
 import { API_BASE_URL } from '../api';
 import { 
   DashboardResultsResponse,
-  DashboardOverviewResponse,
-  AssetSummary,
-  AssetProjectionResponse,
   AssetRiskResponse,
   MethodologyResponse,
-  
-  // New clean contract types
   DashboardOverviewResult,
-  AssetProjectionResult
+  AssetProjectionResult,
+  ValidationSummary
 } from '../../types/results';
 
 export const resultsApi = {
@@ -75,7 +71,7 @@ export const resultsApi = {
     return response.json();
   },
 
-  getValidationSummary: async (): Promise<any> => {
+  getValidationSummary: async (): Promise<ValidationSummary> => {
     const response = await fetch(`${API_BASE_URL}/api/validation/summary`, {
       headers: { 'Content-Type': 'application/json' },
     });

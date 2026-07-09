@@ -24,13 +24,13 @@ async def get_latest_probabilistic_surface(
     asset = await IngestionService.get_asset_by_ticker(db, ticker)
     if not asset:
         raise HTTPException(
-            status_code=444, detail=f"Asset with ticker {ticker} not found in catalog"
+            status_code=404, detail=f"Asset with ticker {ticker} not found in catalog"
         )
 
     response = await ProjectionService.get_latest_projection_response(db, ticker)
     if not response:
         raise HTTPException(
-            status_code=444,
+            status_code=404,
             detail=f"No completed projection runs found for {ticker}. Please trigger a run first.",
         )
     return response
@@ -47,7 +47,7 @@ async def trigger_surface_projection(
     asset = await IngestionService.get_asset_by_ticker(db, ticker)
     if not asset:
         raise HTTPException(
-            status_code=444, detail=f"Asset with ticker {ticker} not found in catalog"
+            status_code=404, detail=f"Asset with ticker {ticker} not found in catalog"
         )
 
     async def run_projection_task():

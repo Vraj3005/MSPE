@@ -22,11 +22,11 @@ api_router.include_router(
 api_router.include_router(
     projections.router, prefix="/projections", tags=["Surface Projections"]
 )
-api_router.include_router(signals.router, prefix="/signals", tags=["Trading Signals"])
+# api_router.include_router(signals.router, prefix="/signals", tags=["Trading Signals"])
 api_router.include_router(risk.router, prefix="/risk", tags=["Risk Analytics Layer"])
-api_router.include_router(
-    backtest.router, prefix="/backtest", tags=["Backtest Simulation Engine"]
-)
+# api_router.include_router(
+#     backtest.router, prefix="/backtest", tags=["Backtest Simulation Engine"]
+# )
 api_router.include_router(
     dashboard.router, prefix="/dashboard", tags=["Dashboard Results Engine"]
 )

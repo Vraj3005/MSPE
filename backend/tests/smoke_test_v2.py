@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """Smoke test for the new MSPE v2 engine pipeline."""
 
 import sys

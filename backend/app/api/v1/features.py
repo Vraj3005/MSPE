@@ -26,7 +26,7 @@ async def get_asset_features(
     asset = await IngestionService.get_asset_by_ticker(db, ticker)
     if not asset:
         raise HTTPException(
-            status_code=444, detail=f"Asset with ticker {ticker} not found in catalog"
+            status_code=404, detail=f"Asset with ticker {ticker} not found in catalog"
         )
 
     # Set default time bounds if not provided
@@ -70,7 +70,7 @@ async def force_compute_features(
     asset = await IngestionService.get_asset_by_ticker(db, ticker)
     if not asset:
         raise HTTPException(
-            status_code=444, detail=f"Asset with ticker {ticker} not found in catalog"
+            status_code=404, detail=f"Asset with ticker {ticker} not found in catalog"
         )
 
     async def run_feature_task():

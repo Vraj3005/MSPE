@@ -25,11 +25,6 @@ from typing import Dict, List, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 
-# In-memory results cache with TTL
-_results_cache: Dict[str, Any] = {}
-_cache_timestamp: float = 0.0
-_CACHE_TTL_SECONDS: float = 300.0  # 5 minutes
-
 from backend.app.core.logging import logger
 from backend.app.models.asset import Asset
 from backend.app.models.market_data import MarketBar
@@ -73,6 +68,12 @@ from backend.app.schemas.dashboard import (
     ValidationSummary,
     ValidationSummaryItem,
 )
+
+# In-memory results cache with TTL
+_results_cache: Dict[str, Any] = {}
+_cache_timestamp: float = 0.0
+_CACHE_TTL_SECONDS: float = 300.0  # 5 minutes
+
 
 # ============================================================
 # Asset metadata & demo configuration
@@ -384,9 +385,6 @@ def run_asset_pipeline_fast(
             scenario_7d = s
             break
 
-    direction = (
-        "positive" if scenario_7d and scenario_7d.expected_return >= 0 else "negative"
-    )
     explanation = ExplanationResult(
         what_mspe_expects=(
             (
@@ -758,7 +756,7 @@ class ResultEngineService:
 
         # Try to load assets from database
         active_assets_res = await db.execute(
-            select(Asset).where(Asset.is_active == True)
+            select(Asset).where(Asset.is_active)
         )
         assets = active_assets_res.scalars().all()
 

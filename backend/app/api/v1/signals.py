@@ -17,7 +17,7 @@ async def list_active_signals(db: AsyncSession = Depends(get_db)):
     """Retrieves all active trade positions currently open in the portfolio, ordered by Rank Score."""
     query = (
         select(TradingSignal)
-        .where(TradingSignal.is_active == True)
+        .where(TradingSignal.is_active)
         .order_by(TradingSignal.rank_score.desc())
     )
     result = await db.execute(query)

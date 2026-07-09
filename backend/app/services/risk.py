@@ -56,7 +56,7 @@ class RiskService:
 
         # 1. Fetch active asset catalog
         active_assets_res = await db.execute(
-            select(Asset).where(Asset.is_active == True)
+            select(Asset).where(Asset.is_active)
         )
         assets = active_assets_res.scalars().all()
         if not assets:
@@ -157,7 +157,7 @@ class RiskService:
 
         # 4. Formulate portfolio weights from active trading signals
         active_signals_query = select(TradingSignal).where(
-            TradingSignal.is_active == True
+            TradingSignal.is_active
         )
         active_signals_res = await db.execute(active_signals_query)
         active_signals = active_signals_res.scalars().all()

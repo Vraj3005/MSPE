@@ -1,56 +1,52 @@
-"""Quick dashboard endpoint test with long timeout."""
+"""Unit tests for the MSPE v2 dashboard endpoints."""
 
-import httpx
+import os
+import sys
 
-c = httpx.Client(timeout=httpx.Timeout(300.0))
+# Add workspace root directory to path so script runs standalone
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+)
 
-print("Testing /api/v1/dashboard/results ...")
-r = c.get("http://127.0.0.1:8000/api/v1/dashboard/results")
-print(f"Status: {r.status_code}")
+from fastapi.testclient import TestClient
+from backend.app.main import app
 
-if r.status_code == 200:
-    d = r.json()
-    print(f"Mode: {d['data_mode']}")
-    print(f"Engine: {d['engine_version']}")
-    print(f"Assets: {list(d['assets'].keys())}")
+client = TestClient(app)
 
-    for sym, asset in d["assets"].items():
-        print(f"\n--- {sym} ---")
-        print(f"  Price: ${asset['latest_price']:,.2f}")
-        print(f"  Model: {asset['model_selection']['selected_model']}")
-        print(f"  Beaten baseline: {asset['model_selection']['baseline_beaten']}")
-        print(
-            f"  Calibration: {asset['model_selection']['validation_summary']['calibration_score']:.4f}"
-        )
-        print(f"  Risk: {asset['risk']['risk_level']} ({asset['risk']['risk_score']})")
-        for p in asset["projections"]:
-            if p["horizon_days"] == 7:
-                print(
-                    f"  7d: ${p['bear_price']:,.2f} — ${p['base_price']:,.2f} — ${p['bull_price']:,.2f}"
-                )
-        print(f"  Explanation: {asset['explanation']['what_mspe_expects'][:100]}...")
 
-    # Test legacy endpoints
-    print("\n\nTesting legacy endpoints...")
+def test_v2_dashboard_results():
+    response = client.get("/api/v1/dashboard/results")
+    assert response.status_code == 200
+    data = response.json()
+    assert "data_mode" in data
+    assert "engine_version" in data
+    assert "assets" in data
 
-    r2 = c.get("http://127.0.0.1:8000/api/dashboard/overview")
-    print(f"  /api/dashboard/overview: {r2.status_code}")
+    # Verify standard tracked assets exist in output
+    for sym in ["BTCUSDT", "ETHUSDT", "SPX", "XAU"]:
+        assert sym in data["assets"]
+        asset = data["assets"][sym]
+        assert "latest_price" in asset
+        assert "model_selection" in asset
+        assert "risk" in asset
+        assert "projections" in asset
 
-    r3 = c.get("http://127.0.0.1:8000/api/assets")
-    print(f"  /api/assets: {r3.status_code}")
 
-    r4 = c.get("http://127.0.0.1:8000/api/assets/BTCUSDT/projection")
-    print(f"  /api/assets/BTCUSDT/projection: {r4.status_code}")
+def test_legacy_endpoints():
+    r1 = client.get("/api/dashboard/overview")
+    assert r1.status_code == 200
 
-    r5 = c.get("http://127.0.0.1:8000/api/assets/BTCUSDT/risk")
-    print(f"  /api/assets/BTCUSDT/risk: {r5.status_code}")
+    r2 = client.get("/api/assets")
+    assert r2.status_code == 200
 
-    r6 = c.get("http://127.0.0.1:8000/api/methodology/simple")
-    print(f"  /api/methodology/simple: {r6.status_code}")
+    r3 = client.get("/api/assets/BTCUSDT/projection")
+    assert r3.status_code == 200
 
-    r7 = c.get("http://127.0.0.1:8000/api/assets/INVALID/projection")
-    print(f"  /api/assets/INVALID/projection: {r7.status_code} (expect 404)")
+    r4 = client.get("/api/assets/BTCUSDT/risk")
+    assert r4.status_code == 200
 
-    print("\nAll endpoints verified!")
-else:
-    print(f"FAILED: {r.text[:500]}")
+    r5 = client.get("/api/methodology/simple")
+    assert r5.status_code == 200
+
+    r6 = client.get("/api/assets/INVALID/projection")
+    assert r6.status_code in [404, 444]

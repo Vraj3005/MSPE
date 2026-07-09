@@ -18,7 +18,7 @@ router = APIRouter()
 @router.get("/", response_model=List[asset_schemas.Asset])
 async def list_assets(db: AsyncSession = Depends(get_db)):
     """Retrieves all tracked assets from the system catalog."""
-    query = select(Asset).where(Asset.is_active == True)
+    query = select(Asset).where(Asset.is_active)
     result = await db.execute(query)
     assets = result.scalars().all()
     return assets
@@ -36,7 +36,7 @@ async def get_historical_bars(
     asset = await IngestionService.get_asset_by_ticker(db, ticker)
     if not asset:
         raise HTTPException(
-            status_code=444, detail=f"Asset with ticker {ticker} not found in catalog"
+            status_code=404, detail=f"Asset with ticker {ticker} not found in catalog"
         )
 
     # Set default time boundaries if not provided

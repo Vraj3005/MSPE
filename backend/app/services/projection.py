@@ -51,7 +51,7 @@ class ProjectionService:
             .join(ModelMetadata)
             .where(
                 and_(
-                    MarketForecast.asset_id == asset.id, ModelMetadata.is_active == True
+                    MarketForecast.asset_id == asset.id, ModelMetadata.is_active
                 )
             )
             .order_by(desc(MarketForecast.timestamp))

@@ -213,7 +213,7 @@ export interface AssetProjectionResult {
   bull_scenario_path: number[];
   monte_carlo_paths: number[][];
   probability_density_data?: DensityData;
-  explainability?: any;
+  explainability?: unknown;
   
   // Nested asset detail mapping to prevent breaks on details page
   asset: {

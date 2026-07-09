@@ -35,7 +35,7 @@ async def get_historical_forecasts(
     asset = await IngestionService.get_asset_by_ticker(db, ticker)
     if not asset:
         raise HTTPException(
-            status_code=444, detail=f"Asset with ticker {ticker} not found in catalog"
+            status_code=404, detail=f"Asset with ticker {ticker} not found in catalog"
         )
 
     # Set default time bounds
@@ -82,7 +82,7 @@ async def trigger_model_training(
     asset = await IngestionService.get_asset_by_ticker(db, ticker)
     if not asset:
         raise HTTPException(
-            status_code=444, detail=f"Asset with ticker {ticker} not found in catalog"
+            status_code=404, detail=f"Asset with ticker {ticker} not found in catalog"
         )
 
     async def run_training_task():

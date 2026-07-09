@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { resultsApi } from '../../../lib/api/results';
 import { copy } from '../../../content/copy';
@@ -113,7 +114,7 @@ export default function AssetDetailPage() {
       }`}>
         <AlertTriangle className="w-10 h-10 text-rose-500 animate-bounce" />
         <span className="font-bold uppercase">{error || "Asset profile could not be assembled."}</span>
-        <a 
+        <Link 
           href="/" 
           className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-colors ${
             theme === 'light' 
@@ -122,7 +123,7 @@ export default function AssetDetailPage() {
           }`}
         >
           <ArrowLeft className="w-4 h-4" /> Return to Dashboard
-        </a>
+        </Link>
       </div>
     );
   }
@@ -149,12 +150,12 @@ export default function AssetDetailPage() {
         theme === 'light' ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#151D30]/30 border-[#1F2942]'
       }`}>
         <div className="flex flex-col gap-2">
-          <a 
+          <Link 
             href="/" 
             className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-500 hover:text-indigo-650 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-          </a>
+          </Link>
           
           <div className="flex flex-wrap items-baseline gap-2.5 mt-1.5">
             <h1 className={`text-2xl font-black tracking-tight ${theme === 'light' ? 'text-slate-900' : 'text-slate-100'}`}>

@@ -85,7 +85,7 @@ async def get_assets_correlation_matrix(db: AsyncSession = Depends(get_db)):
 
     if not record:
         raise HTTPException(
-            status_code=444,
+            status_code=404,
             detail="No correlation metrics have been calculated. Trigger /api/v1/risk/evaluate",
         )
 
@@ -116,7 +116,7 @@ async def get_portfolio_stress_testing(db: AsyncSession = Depends(get_db)):
 
     if not record:
         raise HTTPException(
-            status_code=444,
+            status_code=404,
             detail="No portfolio stress tests found. Trigger evaluation at /api/v1/risk/evaluate",
         )
 

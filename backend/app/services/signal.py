@@ -23,7 +23,7 @@ class SignalService:
     async def get_portfolio_exposure(cls, db: AsyncSession) -> Dict[str, float]:
         """Calculates current active aggregate exposure and risk parameters."""
         # Query active open signals
-        query = select(TradingSignal).where(TradingSignal.is_active == True)
+        query = select(TradingSignal).where(TradingSignal.is_active)
         result = await db.execute(query)
         active_signals = result.scalars().all()
 
@@ -54,7 +54,7 @@ class SignalService:
         """
         logger.info("Executing trading signal scan...")
 
-        active_assets = await db.execute(select(Asset).where(Asset.is_active == True))
+        active_assets = await db.execute(select(Asset).where(Asset.is_active))
         assets = active_assets.scalars().all()
 
         raw_signals: List[Dict[str, Any]] = []
@@ -84,7 +84,7 @@ class SignalService:
                 .where(
                     and_(
                         MarketForecast.asset_id == asset.id,
-                        ModelMetadata.is_active == True,
+                        ModelMetadata.is_active,
                     )
                 )
                 .order_by(desc(MarketForecast.timestamp))
@@ -137,7 +137,7 @@ class SignalService:
                 continue
 
             p10_bear = float(terminal_surface.p10_price)
-            p50_base = float(terminal_surface.p50_price)
+            float(terminal_surface.p50_price)
             p90_bull = float(terminal_surface.p90_price)
 
             # 4. Signal Trigger Logic
