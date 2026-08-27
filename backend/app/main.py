@@ -34,6 +34,8 @@ async def run_incremental_sync_job():
         try:
             await IngestionService.sync_incremental(db, "1d")
             await IngestionService.sync_incremental(db, "1h")
+            from backend.app.services.result_engine import ResultEngineService
+            ResultEngineService.invalidate_cache()
         except Exception as e:
             logger.error(f"Error during scheduled database sync: {e}")
 
@@ -45,6 +47,8 @@ async def run_initial_sync():
         try:
             await IngestionService.sync_incremental(db, "1d")
             await IngestionService.sync_incremental(db, "1h")
+            from backend.app.services.result_engine import ResultEngineService
+            ResultEngineService.invalidate_cache()
             logger.info("Initial startup database sync completed successfully.")
         except Exception as e:
             logger.error(

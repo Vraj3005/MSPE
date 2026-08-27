@@ -85,6 +85,8 @@ async def trigger_sync(
             try:
                 await IngestionService.sync_incremental(background_db, "1d")
                 await IngestionService.sync_incremental(background_db, "1h")
+                from backend.app.services.result_engine import ResultEngineService
+                ResultEngineService.invalidate_cache()
             except Exception as e:
                 logger.error(f"Error during manual background sync: {e}")
 

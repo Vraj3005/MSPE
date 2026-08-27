@@ -212,13 +212,19 @@ export default function MarketOverview({ theme = 'light' }: MarketOverviewProps)
     try {
       setSyncing(true);
       setError(null);
+      setSyncMessage('Fetching latest price bars from live market feeds...');
       const res = await api.triggerIngestionSync();
-      setSyncMessage(res.detail || 'Incremental price synch complete.');
-      setTimeout(() => setSyncMessage(null), 5000);
-      await loadData(false);
+      setSyncMessage(res.detail || 'Sync initiated in background. Refreshing dashboard...');
+      
+      // Allow the background sync task to ingest bars and invalidate cache, then refresh
+      setTimeout(async () => {
+        await loadData(false);
+        setSyncMessage('Market prices and projections successfully updated to live prices!');
+        setTimeout(() => setSyncMessage(null), 5000);
+        setSyncing(false);
+      }, 5000);
     } catch (err: any) {
       setError(err.message || 'Failed to synchronise market prices.');
-    } finally {
       setSyncing(false);
     }
   };

@@ -734,6 +734,14 @@ class ResultEngineService:
     """Service layer that connects the pipeline to the database and API."""
 
     @classmethod
+    def invalidate_cache(cls) -> None:
+        """Clears the in-memory results cache so the next request re-computes with fresh DB data."""
+        global _results_cache, _cache_timestamp
+        _results_cache = {}
+        _cache_timestamp = 0.0
+        logger.info("MSPE Result Engine cache invalidated.")
+
+    @classmethod
     async def get_dashboard_results(
         cls, db: AsyncSession
     ) -> V2DashboardResultsResponse:
